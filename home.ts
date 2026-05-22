@@ -1,4 +1,4 @@
-namespace example_project {
+namespace micro_ml {
   import Screen = user_interface_base.Screen
   import CursorScene = user_interface_base.CursorScene
   import Button = user_interface_base.Button
@@ -61,49 +61,55 @@ namespace example_project {
         Screen.TOP_EDGE,
         Screen.WIDTH,
         Screen.HEIGHT,
-        12 // purple in default palette
+        0xc
       )
 
-      // How we can get bitmaps from assets, which we then draw to the screen:
-      const microbitLogo = icons.get("microbitLogo")
-      const microdataLogo = icons.get("exampleProjectLogo")
 
-      // This code makes the microdataLogo scroll down from the screen and bounce.
-      // You can ignore the specifics of this code:
+      const microbitLogo = icons.get("microbitLogo")
+      const wordLogo = icons.get("microMLLogo")
+
       this.yOffset = Math.min(0, this.yOffset + 2)
       const t = control.millis()
       const dy = this.yOffset == 0 ? (Math.idiv(t, 800) & 1) - 1 : 0
       const margin = 2
-      const OFFSET = (Screen.HEIGHT >> 1) - microdataLogo.height - margin - 9
-      const y = Screen.TOP_EDGE + OFFSET
+      const OFFSET = (Screen.HEIGHT >> 1) - wordLogo.height - margin - 9
+      const y = Screen.TOP_EDGE + OFFSET + dy
+
 
       Screen.drawTransparentImage(
-        microdataLogo,
-        Screen.LEFT_EDGE + ((Screen.WIDTH - microdataLogo.width) >> 1),
+        wordLogo,
+        Screen.LEFT_EDGE + ((Screen.WIDTH - wordLogo.width) >> 1) + dy,
         y + this.yOffset
       )
 
       Screen.drawTransparentImage(
         microbitLogo,
-        Screen.LEFT_EDGE + ((Screen.WIDTH - microbitLogo.width) >> 1),
-        y - microdataLogo.height + this.yOffset + margin
+        Screen.LEFT_EDGE +
+        ((Screen.WIDTH - microbitLogo.width) >> 1) +
+        dy,
+        y - wordLogo.height + this.yOffset + margin
       )
 
       if (!this.yOffset) {
-        const flavourText = "Let's make an app!"
-        const x = Screen.LEFT_EDGE + ((Screen.WIDTH + microdataLogo.width) >> 1) + dy
-                  - (flavourText.length * font.charWidth)
-        const y = Screen.TOP_EDGE + OFFSET + microdataLogo.height + dy + this.yOffset + 3
+        const tagline = "on device ML"
         Screen.print(
-          flavourText,
-          x,
-          y,
-          11, // light grey in the default palette
+          tagline,
+          Screen.LEFT_EDGE +
+          ((Screen.WIDTH + wordLogo.width) >> 1) +
+          dy -
+          font.charWidth * tagline.length,
+          Screen.TOP_EDGE +
+          OFFSET +
+          wordLogo.height +
+          dy +
+          this.yOffset +
+          1,
+          11,
           font
         )
       }
 
-      this.navigator.drawComponents();
+      this.navigator.drawComponents()
       this.drawVersion()
       super.draw()
     }

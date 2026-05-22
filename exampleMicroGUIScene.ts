@@ -4,7 +4,7 @@
 * It provides components that you can easily manipulate to make more complex scenes.
 * If you have problems with microgui, please file an issue or reach out. https://github.com/microbit-apps/MicroGUI/issues
 */
-namespace example_project {
+namespace micro_ml {
   import AppInterface = user_interface_base.AppInterface
 
   // MicroGUI enables scenes to be made up of hetrogenous components:

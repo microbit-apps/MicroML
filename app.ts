@@ -2,7 +2,7 @@
 * Define a namespace for your project
 * so you don't have to prepend it to everything.
 */
-namespace example_project {
+namespace micro_ml {
   // This import is really just a convenience to avoid having to prepend user_interface_base
   // Extensions and files are included when you list them inside pxt.json
   import AppInterface = user_interface_base.AppInterface
@@ -24,7 +24,7 @@ namespace example_project {
 
       // Progress to the next scene if the arcade shield is present:
       if (shieldhelpers.shieldPresent())
-        this.pushScene(new example_project.Home(this));
+        this.pushScene(new micro_ml.Home(this));
     }
 
     public pushScene(scene: Scene) {

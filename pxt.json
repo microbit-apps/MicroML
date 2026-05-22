@@ -17,6 +17,7 @@
         "exampleScene.ts",
         "exampleMicroGUIScene.ts",
         "simpleCursorScene.ts",
+        "modelTrainingInfo.ts",
         "ml.ts",
         "ml.cpp",
         "shims.d.ts",
