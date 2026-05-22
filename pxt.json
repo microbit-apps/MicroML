@@ -1,0 +1,39 @@
+{
+    "name": "microml",
+    "version": "0.0.0",
+    "files": [
+        "main.ts",
+        "app.ts",
+        "assets.ts",
+        "home.ts",
+        "exampleScene.ts",
+        "exampleMicroGUIScene.ts",
+        "simpleCursorScene.ts",
+        "ml.ts",
+        "ml.cpp",
+        "shims.d.ts",
+        "enums.d.ts",
+        "datasets.h",
+        "datasets.cpp",
+        "utils.h",
+        "utils.cpp"
+    ],
+    "supportedTargets": [
+        "microbit"
+    ],
+    "dependencies": {
+        "core": "*",
+        "radio": "*",
+        "microphone": "*",
+        "datalogger": "*",
+        "user-interface-base": "github:microbit-apps/user-interface-base#v0.0.34",
+        "microgui": "github:microbit-apps/microgui#v0.0.45"
+    },
+    "yotta": {
+      "config": {
+          "DEVICE_BLE": 0,
+          "CODAL_DEBUG": 0
+      }
+    },
+    "testDependencies": {}
+}
