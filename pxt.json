@@ -1,6 +1,14 @@
 {
     "name": "microml",
     "version": "0.0.0",
+    "dependencies": {
+        "core": "*",
+        "radio": "*",
+        "microphone": "*",
+        "datalogger": "*",
+        "user-interface-base": "github:microbit-apps/user-interface-base#v0.0.34",
+        "microgui": "github:microbit-apps/microgui#v0.0.45"
+    },
     "files": [
         "main.ts",
         "app.ts",
@@ -18,22 +26,14 @@
         "utils.h",
         "utils.cpp"
     ],
+    "testDependencies": {},
     "supportedTargets": [
         "microbit"
     ],
-    "dependencies": {
-        "core": "*",
-        "radio": "*",
-        "microphone": "*",
-        "datalogger": "*",
-        "user-interface-base": "github:microbit-apps/user-interface-base#v0.0.34",
-        "microgui": "github:microbit-apps/microgui#v0.0.45"
-    },
     "yotta": {
-      "config": {
-          "DEVICE_BLE": 0,
-          "CODAL_DEBUG": 0
-      }
-    },
-    "testDependencies": {}
+        "config": {
+            "DEVICE_BLE": 0,
+            "CODAL_DEBUG": 0
+        }
+    }
 }

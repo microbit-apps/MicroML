@@ -22,7 +22,7 @@ namespace example_project {
           parent: null,
           style: ButtonStyles.Transparent,
           icon: "linear_graph_1",
-          ariaId: "Select me!",
+          ariaId: "Train a model",
           x: -40,
           y: 25,
           onClick: () => {
@@ -33,7 +33,7 @@ namespace example_project {
           parent: null,
           style: ButtonStyles.Transparent,
           icon: "largeDisk",
-          ariaId: "Or select me!",
+          ariaId: "Build a dataset",
           x: 40,
           y: 25,
           onClick: () => {

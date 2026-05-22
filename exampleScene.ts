@@ -4,6 +4,7 @@ namespace example_project {
   import AppInterface = user_interface_base.AppInterface
   import font = user_interface_base.font
 
+
   /**
   * Use a Scene instead of a CursorScene when you want to
   * control display-shield button behaviour yourself.
