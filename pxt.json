@@ -25,7 +25,10 @@
         "datasets.h",
         "datasets.cpp",
         "utils.h",
-        "utils.cpp"
+        "utils.cpp",
+        "guiComponents.ts",
+        "trainingScene.ts",
+        "neuralNetworkSpec.ts"
     ],
     "testDependencies": {},
     "supportedTargets": [

@@ -92,7 +92,7 @@ static NeuralNetwork *nn = nullptr;
 #define DEFAULT_LEARNING_RATE 0.015f
 
 //%
-void construct_nn(Buffer layer_dims, Buffer activation_fn_enums, DatasetEnum dataset_enum, float training_split) {
+void construct_nn(Buffer layer_dims, Buffer activation_fn_enums, DatasetEnum dataset_enum) {
     // if (nn) {
     //     for (int i = 0; i < nn->num_layers; i++)
     //       destruct_layer(&nn->layer[i]);
@@ -113,7 +113,7 @@ void construct_nn(Buffer layer_dims, Buffer activation_fn_enums, DatasetEnum dat
     nn = new NeuralNetwork;
     nn->layers = layers;
     nn->num_layers = num_layers;
-    nn->dataset = construct_train_test_split_dataset(dataset_enum, training_split, DATASET_RAM_BUDGET_BYTES_DEFAULT);
+    nn->dataset = construct_train_test_split_dataset(dataset_enum, 0.6, DATASET_RAM_BUDGET_BYTES_DEFAULT);
     nn->learning_rate = DEFAULT_LEARNING_RATE;
 }
 
@@ -122,7 +122,7 @@ static float *backward_pass(Layer *layer, const float *upstream_grad);
 
 
 //%
-void train_nn(int epochs, float learning_rate, bool print_epoch_info) {
+void train_nn(int epochs, float learning_rate, Action a) {
   nn->learning_rate = learning_rate;
   // if (!nn || !nn->dataset)
   //   return -1;
@@ -161,12 +161,12 @@ void train_nn(int epochs, float learning_rate, bool print_epoch_info) {
       delete[] one_hot;
     }
 
-    if (print_epoch_info) {
-      uBit.serial.printf("Training epoch: %d, ", epoch);
-      print_float("Loss: ", epoch_loss_cum / ds->total_len);
-      uBit.serial.printf("\r\n");
-      uBit.sleep(10);
-    }
+    // if (print_epoch_info) {
+    //   uBit.serial.printf("Training epoch: %d, ", epoch);
+    //   print_float("Loss: ", epoch_loss_cum / ds->total_len);
+    //   uBit.serial.printf("\r\n");
+    //   uBit.sleep(10);
+    // }
   }
 }
 
@@ -192,8 +192,30 @@ static float *unpack_buffer_into_floats(Buffer buf) {
     return out;
 }
 
+
 //%
-float evaluate(Buffer input_buf) {
+void testing(RefObject* ds, Action a) {
+  // String s = mkString("Hello from C++!");
+
+  // StringData* name = (StringData*)getVTable(ds, "name");
+  // getProperty(ds);
+  RefMap* m = (RefMap*)ds;
+
+  // TValue k = m->keys.get(3);
+  TValue v1 = m->values.get(0);
+  TValue v2 = m->values.get(3);
+  // TValue epochsVal = m->values.get(unsigned int i);
+  //     mkString("epochs")
+  // );
+
+  // uint8_t data[] = {0};
+  // runAction1(a, (TValue)s);
+  runAction1(a, v1);
+  runAction1(a, v2);
+}
+
+//%
+Buffer evaluate(Buffer input_buf) {
     // if (!nn)
     //     return -1.0f;
     // float *input = unpack_buffer_into_floats(input_buf);
@@ -205,11 +227,22 @@ float evaluate(Buffer input_buf) {
     //         best = i;
     // delete[] input;
     // return (float)best;
-    return 0.0f;
+    // handler.call();
+    // registerWithDal(1000, event, handler);
+    // EventModel::defaultEventBus->listen(event, DEVICE_BUTTON_EVT_DOWN, handler);
+
+    //
+    // Event(1000, event);
+    // Event(1000, event);
+    // Event(1000, event);
+
+    // runAction0(handler);
+
+    return input_buf;
 }
 
 //%
-float test_nn(bool print_info) {
+float test_nn(Action a) {
   Dataset *ds = nn->dataset->test;
 
   int correct = 0;
@@ -231,28 +264,28 @@ float test_nn(bool print_info) {
       correct++;
     }
 
-    if (print_info) {
-      uBit.serial.printf("Test: %d, Label: %d, Predicted: %d\r\nLayer outputs:\r\n", ds_i, dp->label, pred);
-      uBit.sleep(25);
-      for (int i = 0; i < ds->num_classes; i++) {
-        uBit.serial.printf("%d : ", i);
-        print_float("", layer_input[i]);
-        uBit.serial.printf("\r\n");
-        uBit.sleep(25);
-      }
-
-      uBit.serial.printf("\r\n");
-      uBit.sleep(25);
-    }
+    // if (print_info) {
+    //   uBit.serial.printf("Test: %d, Label: %d, Predicted: %d\r\nLayer outputs:\r\n", ds_i, dp->label, pred);
+    //   uBit.sleep(25);
+    //   for (int i = 0; i < ds->num_classes; i++) {
+    //     uBit.serial.printf("%d : ", i);
+    //     print_float("", layer_input[i]);
+    //     uBit.serial.printf("\r\n");
+    //     uBit.sleep(25);
+    //   }
+    //
+    //   uBit.serial.printf("\r\n");
+    //   uBit.sleep(25);
+    // }
   }
 
   const float accuracy = ((float)correct) / (float)ds->total_len;
-  if (print_info) {
-    uBit.serial.printf("Accuracy: %d/%d=", correct, ds->total_len);
-    print_float("", accuracy);
-    uBit.serial.printf("\r\n");
-    uBit.sleep(25);
-  }
+  // if (print_info) {
+  //   uBit.serial.printf("Accuracy: %d/%d=", correct, ds->total_len);
+  //   print_float("", accuracy);
+  //   uBit.serial.printf("\r\n");
+  //   uBit.sleep(25);
+  // }
   return accuracy;
 }
 

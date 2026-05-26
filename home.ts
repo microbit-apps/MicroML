@@ -19,15 +19,26 @@ namespace micro_ml {
       super.startup()
       this.navigator.setBtns([[
         new Button({
-          parent: null,
-          style: ButtonStyles.Transparent,
-          icon: "linear_graph_1",
-          ariaId: "Train a model",
-          x: -40,
-          y: 25,
-          onClick: () => {
-            this.app.pushScene(new ExampleScene(this.app))
-          },
+            parent: null,
+            style: ButtonStyles.Transparent,
+            icon: "neuralNetwork1",
+            ariaId: "Train a model",
+            x: -40,
+            y: 25,
+            onClick: () => {
+                this.app.pushScene(new TrainingScene(this.app))
+            },
+        }),
+        new Button({
+            parent: null,
+            style: ButtonStyles.Transparent,
+            icon: "linearGraph3",
+            ariaId: "Test a model",
+            x: 0,
+            y: 25,
+            onClick: () => {
+                this.app.pushScene(new TrainingScene(this.app))
+            },
         }),
         new Button({
           parent: null,

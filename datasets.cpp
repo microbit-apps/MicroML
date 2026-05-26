@@ -43,6 +43,11 @@ static void destruct_datapoint(DataPoint *dp) {
 }
 
 
+Dataset* construct_custom_dataset(RefObject* datasetSpec) {
+  
+}
+
+
 Dataset *construct_dataset(DatasetEnum dataset_enum, unsigned start_idx, unsigned stop_idx,
                            unsigned ram_budget_bytes) {
     switch (dataset_enum) {
