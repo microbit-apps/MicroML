@@ -858,6 +858,14 @@ namespace micro_ml {
 
       this.graphBuffer = [];
       this.yAxisRange = [0, 0]
+
+      control.onEvent(
+        ControllerButtonEvent.Pressed,
+        controller.B.id,
+        () => {
+            this.app.popScene()
+        }
+      )
     }
 
     drawGraph() {
@@ -899,7 +907,7 @@ namespace micro_ml {
             y1,
             this.leftMargin + i + 1 + s,
             y2,
-            6
+            2
           )
         }
       }

@@ -10,18 +10,18 @@ namespace micro_ml {
   }
 
   //% shim=__micro_ml::test_nn
-  export function test_nn(infoCB: (s: string) => void): number {
-    return 0;
+  export function test_nn(infoCB: (b: Buffer) => void): Buffer {
+    return null;
+  }
+
+  //% shim=__micro_ml::save_current_nn
+  export function save_current_nn(): boolean {
+    return false;
   }
 
   //% shim=__micro_ml::evaluate
   export function evaluate(input_data: Buffer): number {
     return 0;
-  }
-
-  //% shim=__micro_ml::testing
-  export function testing(nnSpec: NeuralNetworkSpec, a: (s: string) => void): void {
-    console.log("pxtsim hack")
   }
 
   export function print_debug_info(): void {

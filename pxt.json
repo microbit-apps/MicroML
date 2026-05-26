@@ -28,7 +28,8 @@
         "utils.cpp",
         "guiComponents.ts",
         "trainingScene.ts",
-        "neuralNetworkSpec.ts"
+        "neuralNetworkSpec.ts",
+        "testingScene.ts"
     ],
     "testDependencies": {},
     "supportedTargets": [

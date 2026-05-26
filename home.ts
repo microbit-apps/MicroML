@@ -37,7 +37,7 @@ namespace micro_ml {
             x: 0,
             y: 25,
             onClick: () => {
-                this.app.pushScene(new TrainingScene(this.app))
+                this.app.pushScene(new TestingScene(this.app))
             },
         }),
         new Button({
