@@ -113,16 +113,17 @@ void construct_nn(Buffer layer_dims, Buffer activation_fn_enums, DatasetEnum dat
     nn = new NeuralNetwork;
     nn->layers = layers;
     nn->num_layers = num_layers;
-    nn->dataset = construct_train_test_split_dataset(dataset_enum, 0.6, DATASET_RAM_BUDGET_BYTES_DEFAULT);
+    nn->dataset = construct_train_test_split_dataset(dataset_enum, 0.5, DATASET_RAM_BUDGET_BYTES_DEFAULT);
     nn->learning_rate = DEFAULT_LEARNING_RATE;
 }
+
 
 static void forward_pass(Layer *layer, const float *input);
 static float *backward_pass(Layer *layer, const float *upstream_grad);
 
 
 //%
-void train_nn(int epochs, float learning_rate, Action a) {
+void train_nn(int epochs, float learning_rate, Action loss_cb) {
   nn->learning_rate = learning_rate;
   // if (!nn || !nn->dataset)
   //   return -1;
@@ -147,7 +148,7 @@ void train_nn(int epochs, float learning_rate, Action a) {
       // 1]->output_len
       float *upstream_grad = new float[ds->num_classes];
       float *one_hot = new float[ds->num_classes]{0};
-      one_hot[dp->label] = 1.0f;
+      one_hot[dp->label] = 1.0;
       cce_grad(layer_input, one_hot, ds->num_classes, upstream_grad);
       epoch_loss_cum += cce_value(layer_input, one_hot, ds->num_classes);
 
@@ -160,6 +161,13 @@ void train_nn(int epochs, float learning_rate, Action a) {
       delete[] upstream_grad;
       delete[] one_hot;
     }
+
+    runAction1(loss_cb, TAG_NUMBER(epoch_loss_cum / (float) ds->total_len));
+    // uBit.serial.printf("Training epoch: %d, %d, %d", epoch, (int) epoch_loss_cum, ds->total_len);
+    // uBit.serial.printf("\r\n");
+    // print_float("Loss: ", epoch_loss_cum / ds->total_len);
+    // uBit.serial.printf("\r\n");
+    // uBit.sleep(10);
 
     // if (print_epoch_info) {
     //   uBit.serial.printf("Training epoch: %d, ", epoch);

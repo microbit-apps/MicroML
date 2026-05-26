@@ -182,9 +182,6 @@ namespace micro_ml {
         epochs: 10
       }
 
-      if (this.nnSpec.datasetSpec == null) {
-        basic.showString("2")
-      }
       this.layerBtns = [];
     }
 
@@ -247,6 +244,7 @@ namespace micro_ml {
           x: 30,
           y: 44,
           onClick: () => {
+            this.doneCallback(this.nnSpec)
             this.app.popScene()
           },
         })
@@ -303,7 +301,7 @@ namespace micro_ml {
         ControllerButtonEvent.Pressed,
         controller.B.id,
         () => {
-          // this.doneCallback(null)
+          this.doneCallback(null)
 
           if (this.state != NeuralNetworkConstructSceneState.Start) {
             this.state = NeuralNetworkConstructSceneState.Start
@@ -744,7 +742,6 @@ namespace micro_ml {
     Saving
   }
 
-
   class NeuralNetworkTrainingScene extends CursorScene {
     private state: NeuralNetworkTrainingSceneState;
     private neuralNetworkSpec: NeuralNetworkSpec = null;
@@ -771,7 +768,7 @@ namespace micro_ml {
       this.graphW = Screen.WIDTH - (this.leftMargin + this.rightMargin);
       this.graphH = Screen.HEIGHT - (this.topMargin + this.botMargin);
 
-      this.graphBufferMaxLen = this.graphW
+      this.graphBufferMaxLen = this.graphW - 4
     }
 
     startup() {
@@ -792,6 +789,21 @@ namespace micro_ml {
             button.setIcon("btn_stop")
             button.ariaId = "Pause training"
             button.update()
+
+            construct_nn(
+              Buffer.fromArray(this.neuralNetworkSpec.layerDims),
+              Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums),
+              DatasetEnum.ACCEL,
+            );
+
+            train_nn(
+              this.neuralNetworkSpec.epochs,
+              0.5,
+              (l: number) => {
+                this.pushToGraphBuffer(l)
+              }
+            );
+
           } else if (this.state == NeuralNetworkTrainingSceneState.Training) {
             this.state = NeuralNetworkTrainingSceneState.Paused
             button.setIcon("rule_arrow")
@@ -816,12 +828,28 @@ namespace micro_ml {
       this.navigator.setBtns([[this.startTrainingBtn]])
     }
 
-    private pushToGraphBuffer(normX: number) {
-      if ((this.graphBuffer.length - 2) == this.graphBufferMaxLen) {
+    private pushToGraphBuffer(loss: number) {
+      if (this.graphBuffer.length == this.graphBufferMaxLen)
         this.graphBuffer.shift();
-      }
 
-      this.graphBuffer.push(normX)
+      if (loss > this.yAxisRange[1])
+        this.yAxisRange[1] = loss;
+
+      if (loss < this.yAxisRange[0])
+        this.yAxisRange[0] = loss;
+
+      const minY = this.yAxisRange[0];
+      const maxY = this.yAxisRange[1];
+
+      let normalized = 0;
+
+      if (maxY > minY)
+        normalized = (loss - minY) / (maxY - minY);
+
+      // invert because screen Y grows downward
+      const y = this.topMargin + (1 - normalized) * this.graphH;
+
+      this.graphBuffer.push(y);
     }
 
     activate() {
@@ -829,21 +857,7 @@ namespace micro_ml {
       this.state = NeuralNetworkTrainingSceneState.Start;
 
       this.graphBuffer = [];
-
-      let t = 0
-
-      // Fake data gen:
-
-      this.yAxisRange = [0, 1000]
-      const gen = () => {
-        t++
-        const x = (1 - (1 / t));
-        this.pushToGraphBuffer(x * this.graphH);
-      };
-
-      // control.inBackground(gen)
-
-      control.setInterval(gen, 100, control.IntervalMode.Interval)
+      this.yAxisRange = [0, 0]
     }
 
     drawGraph() {
@@ -885,7 +899,7 @@ namespace micro_ml {
             y1,
             this.leftMargin + i + 1 + s,
             y2,
-            2
+            6
           )
         }
       }
@@ -900,10 +914,7 @@ namespace micro_ml {
         4
       )
 
-      // basic.showNumber(this.graphBuffer.length)
-
       this.drawGraph();
-
 
       const title = "Loss per epoch";
       screen().print(
@@ -988,7 +999,9 @@ namespace micro_ml {
           ])
           this.state = State.NeuralNetworkConstructed;
 
-          const cb = (selected: NeuralNetworkSpec) => { this.neuralNetworkSpec = selected }
+          // const cb = (selected: NeuralNetworkSpec) => { this.neuralNetworkSpec = selected }
+          const cb = (selected: NeuralNetworkSpec) => { this.setNNSpec(selected) }
+
           this.app.pushScene(new NeuralNetworkConstructScene(this.app, DatasetManager.datasetSpecs[this.selectedDatabaseIdx], cb))
         },
         state: ["Configure the neural", "network for the best", "performance against", "your dataset."]
@@ -1013,6 +1026,11 @@ namespace micro_ml {
       ]])
 
       this.cursor.setOutlineColour(7)
+    }
+
+
+    setNNSpec(nnSpec: NeuralNetworkSpec) {
+      this.neuralNetworkSpec = nnSpec
     }
 
     activate() {
