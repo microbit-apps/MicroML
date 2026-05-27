@@ -164,8 +164,6 @@ namespace micro_ml {
   class NeuralNetworkConstructScene extends CursorScene {
     private state: NeuralNetworkConstructSceneState;
     private layerBtns: Button[];
-
-    private datasetNames: string[];
     private currentIdx: number;
 
     private nnSpec: NeuralNetworkSpec;
@@ -178,8 +176,8 @@ namespace micro_ml {
       this.nnSpec = {
         datasetSpec: datasetSpec,
         layerDims: [datasetSpec.numFeatures, datasetSpec.numLabels],
-        activation_function_enums: [],
-        epochs: 10
+        activation_function_enums: [ActivationFunctionEnum.SoftMax],
+        epochs: 50
       }
 
       this.layerBtns = [];
@@ -217,7 +215,11 @@ namespace micro_ml {
 
               this.nnSpec.layerDims = this.nnSpec.layerDims.slice(0, this.nnSpec.layerDims.length - 1)
               this.nnSpec.layerDims.push(defaultNewLayerSize)
-              this.nnSpec.layerDims.push(this.nnSpec.layerDims[this.nnSpec.layerDims.length - 1])
+              this.nnSpec.layerDims.push(this.nnSpec.datasetSpec.numLabels)
+
+              this.nnSpec.activation_function_enums = this.nnSpec.activation_function_enums.slice(0, this.nnSpec.activation_function_enums.length - 1)
+              this.nnSpec.activation_function_enums.push(ActivationFunctionEnum.Sigmoid)
+              this.nnSpec.activation_function_enums.push(ActivationFunctionEnum.SoftMax)
             }
 
             this.currentIdx = this.nnSpec.layerDims.length - 2
@@ -796,22 +798,23 @@ namespace micro_ml {
         DatasetEnum.ACCEL
       );
 
-      control.inBackground(() => {
-        train_nn(
-          this.neuralNetworkSpec.epochs,
-          0.5,
-          (l: number) => {
-            this.pushToGraphBuffer(l)
-          }
-        );
-      })
+      // control.inBackground(() => {
+      train_nn(
+        this.neuralNetworkSpec.epochs,
+        0.5,
+        (l: number) => {
+          this.pushToGraphBuffer(l)
+          basic.pause(1) // yield
+        }
+      );
+      // })
 
-          // } else if (this.state == NeuralNetworkTrainingSceneState.Training) {
-          //   this.state = NeuralNetworkTrainingSceneState.Paused
-          //   button.setIcon("rule_arrow")
-          //   button.ariaId = "Resume training"
-          //   button.update()
-          // }
+      // } else if (this.state == NeuralNetworkTrainingSceneState.Training) {
+      //   this.state = NeuralNetworkTrainingSceneState.Paused
+      //   button.setIcon("rule_arrow")
+      //   button.ariaId = "Resume training"
+      //   button.update()
+      // }
       //   }
       // });
 
@@ -950,6 +953,20 @@ namespace micro_ml {
         1,
       )
 
+      let txt;
+      if (this.state == NeuralNetworkTrainingSceneState.Training) {
+        txt = "Training..."
+      } else if (this.state == NeuralNetworkTrainingSceneState.TrainingComplete) {
+        txt = "Training Done! Press A"
+      }
+
+      screen().print(
+        txt,
+        (screen().width - (txt.length * font.charWidth)) >> 1,
+        screen().height - 10,
+        1,
+      )
+
       super.draw()
     }
   }
@@ -1008,8 +1025,8 @@ namespace micro_ml {
           ])
           this.state = State.NeuralNetworkConstructed;
 
-          // const cb = (selected: NeuralNetworkSpec) => { this.neuralNetworkSpec = selected }
-          const cb = (selected: NeuralNetworkSpec) => { this.setNNSpec(selected) }
+          const cb = (selected: NeuralNetworkSpec) => { this.neuralNetworkSpec = selected }
+          // const cb = (selected: NeuralNetworkSpec) => { this.setNNSpec(selected) }
 
           this.app.pushScene(new NeuralNetworkConstructScene(this.app, DatasetManager.datasetSpecs[this.selectedDatabaseIdx], cb))
         },
@@ -1035,11 +1052,6 @@ namespace micro_ml {
       ]])
 
       this.cursor.setOutlineColour(7)
-    }
-
-
-    setNNSpec(nnSpec: NeuralNetworkSpec) {
-      this.neuralNetworkSpec = nnSpec
     }
 
     activate() {
@@ -1091,7 +1103,6 @@ namespace micro_ml {
         7
       )
     }
-
 
     draw() {
       Screen.drawTransparentImage(

@@ -31,6 +31,7 @@ namespace micro_ml {
       super.activate()
       this.currentIdx = 0;
       this.state = TestingSceneState.Start;
+      this.testResults = [];
 
       control.onEvent(
         ControllerButtonEvent.Pressed,
@@ -39,6 +40,7 @@ namespace micro_ml {
           // this.app.popScene()
         }
       )
+
       control.onEvent(
         ControllerButtonEvent.Pressed,
         controller.B.id,
@@ -65,14 +67,13 @@ namespace micro_ml {
         }
       )
 
-
       const nnTestCB = (resultsBuf: Buffer) => {
         const results = resultsBuf.toArray(NumberFormat.Float32LE)
 
         const label: string = results[0].toString().slice(0, 4);
         const pred: string = results[1].toString().slice(0, 4);
         const confidence: string = results[2].toString().slice(0, 4);
-        this.testResults.push("1: " + label + " Pred: " + pred + " Conf: " + confidence);
+        this.testResults.push((this.testResults.length + 1) + ": Label: " + label + " Pred: " + pred + " Conf: " + confidence);
       }
 
       this.state = TestingSceneState.Testing;
@@ -81,10 +82,6 @@ namespace micro_ml {
     }
 
     drawTestResults() {
-      // this.maxTestResultsOnScreen
-
-      // const startIdx = Math.max(0, this.testResults.length - this.maxTestResultsOnScreen);
-
       const lines = this.testResults.slice(this.currentIdx, this.currentIdx + this.maxTestResultsOnScreen);
       lines.forEach((line, i) => {
         Screen.print(

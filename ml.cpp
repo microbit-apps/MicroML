@@ -253,16 +253,18 @@ Buffer test_nn(Action a) {
       if (layer_input[c] > layer_input[pred])
         pred = c;
 
-    if (pred == dp->label) {
+    if (pred == dp->label)
       correct++;
-    }
 
-    // uBit.serial.printf("Test: %d, Label: %d, Predicted: %d\r\nLayer
-    // outputs:\r\n", ds_i, dp->label, pred); uBit.sleep(25); for (int i = 0;
-
+    // uBit.serial.printf("%d\r\n", ds_i);
     const float test_data[3] = {(float) dp->label, (float)pred, layer_input[pred]};
     runAction1(a, (TValue) mkBuffer(test_data, sizeof(test_data)));
-                       
+
+    uBit.serial.printf("Test: %d, Label: %d, Predicted: %d, ", ds_i, dp->label, pred);
+    print_float("Confidence: ", layer_input[pred]);
+    uBit.serial.printf("\r\n");
+    uBit.sleep(25);
+
     // if (print_info) {
     //   uBit.serial.printf("Test: %d, Label: %d, Predicted: %d\r\nLayer
     //   outputs:\r\n", ds_i, dp->label, pred); uBit.sleep(25); for (int i = 0;

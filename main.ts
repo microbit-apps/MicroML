@@ -18,14 +18,34 @@ new micro_ml.App();
   //   }
   // )
 
-  // const nnSpec: NeuralNetworkSpec = {
-  //   datasetSpec: XOR_DATASET_SPEC,
-  //   layerDims: [XOR_DATASET_SPEC.numFeatures, 3, XOR_DATASET_SPEC.numLabels],
-  //   activation_function_enums: [ActivationFunctionEnum.ReLU, ActivationFunctionEnum.SoftMax],
-  //   epochs: 30,
-  // };
-  //
   // testing(nnSpec, (s: string) => {basic.showString(s);});
 
   // build_nn(nnSpec, () => {i++; basic.showNumber(i);});
+
+  // function test_1() {
+  //   const nnSpec: NeuralNetworkSpec = {
+  //     datasetSpec: ACCEL_DATASET_SPEC,
+  //     layerDims: [ACCEL_DATASET_SPEC.numFeatures, 8, ACCEL_DATASET_SPEC.numLabels],
+  //     activation_function_enums: [ActivationFunctionEnum.Sigmoid, ActivationFunctionEnum.SoftMax],
+  //     epochs: 30,
+  //   };
+  //
+  //   construct_nn(Buffer.fromArray(nnSpec.layerDims), Buffer.fromArray(nnSpec.activation_function_enums), DatasetEnum.ACCEL)
+  //
+  //   const nnTestCB = (resultsBuf: Buffer) => {
+  //     const results = resultsBuf.toArray(NumberFormat.Float32LE)
+  //
+  //     const label: string = results[0].toString().slice(0, 4);
+  //     const pred: string = results[1].toString().slice(0, 4);
+  //     const confidence: string = results[2].toString().slice(0, 4);
+  //     datalogger.logData([
+  //       datalogger.createCV("label", label),
+  //       datalogger.createCV("pred", pred),
+  //       datalogger.createCV("conf", confidence)
+  //     ])
+  //   }
+  //
+  //   train_nn(10, 0.015, () => { })
+  //   test_nn(nnTestCB)
+  // }
 // }
