@@ -891,10 +891,12 @@ namespace micro_ml {
       const afe = Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums);
       construct_nn(ld, afe, DatasetEnum.ACCEL);
 
+      this.state = NeuralNetworkTrainingSceneState.Training
       train_nn(this.neuralNetworkSpec.epochs, 0.015, (l: number) => {
         this.pushToGraphBuffer(l / 1000) // * 1000 on C++ end, since TAG_NUMBER() doesn't work with doubles nor floats.
         basic.pause(1) // yield
       });
+      this.state = NeuralNetworkTrainingSceneState.TrainingComplete
     }
 
     drawGraph() {
@@ -977,21 +979,21 @@ namespace micro_ml {
         1,
       )
 
-      // let txt = null;
-      // if (this.state == NeuralNetworkTrainingSceneState.Training) {
-      //   txt = "Training..."
-      // } else if (this.state == NeuralNetworkTrainingSceneState.TrainingComplete) {
-      //   txt = "Training Done! Press A"
-      // }
-      //
-      // if (txt != null) {
-      //   screen().print(
-      //     txt,
-      //     (screen().width - (txt.length * font.charWidth)) >> 1,
-      //     screen().height - 10,
-      //     1,
-      //   )
-      // }
+      let txt = null;
+      if (this.state == NeuralNetworkTrainingSceneState.Training) {
+        txt = "Training..."
+      } else if (this.state == NeuralNetworkTrainingSceneState.TrainingComplete) {
+        txt = "Training Done! Press A"
+      }
+
+      if (txt != null) {
+        screen().print(
+          txt,
+          (screen().width - (txt.length * font.charWidth)) >> 1,
+          screen().height - 10,
+          1,
+        )
+      }
 
       super.draw()
     }
