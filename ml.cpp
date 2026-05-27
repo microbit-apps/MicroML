@@ -188,6 +188,7 @@ static void print_float(const char *prepend, float val) {
     uBit.serial.printf("%s%d.%d", prepend, as_int, as_frac);
 }
 
+
 static float *unpack_buffer_into_floats(Buffer buf) {
   const int s = sizeof(float);
   int count = buf->length / s;
@@ -199,24 +200,10 @@ static float *unpack_buffer_into_floats(Buffer buf) {
 }
 
 //%
-void testing(RefObject *ds, Action a) {
-  // String s = mkString("Hello from C++!");
+Buffer testing() {
+  const float test_data[3] = {0.1f, 2.1f, -10.0f};
 
-  // StringData* name = (StringData*)getVTable(ds, "name");
-  // getProperty(ds);
-  RefMap *m = (RefMap *)ds;
-
-  // TValue k = m->keys.get(3);
-  TValue v1 = m->values.get(0);
-  TValue v2 = m->values.get(3);
-  // TValue epochsVal = m->values.get(unsigned int i);
-  //     mkString("epochs")
-  // );
-
-  // uint8_t data[] = {0};
-  // runAction1(a, (TValue)s);
-  runAction1(a, v1);
-  runAction1(a, v2);
+  return mkBuffer(test_data, sizeof(test_data));
 }
 
 //%
@@ -274,7 +261,7 @@ Buffer test_nn(Action a) {
     // outputs:\r\n", ds_i, dp->label, pred); uBit.sleep(25); for (int i = 0;
 
     const float test_data[3] = {(float) dp->label, (float)pred, layer_input[pred]};
-    runAction1(a, (TValue) mkBuffer(test_data, 3));
+    runAction1(a, (TValue) mkBuffer(test_data, sizeof(test_data)));
                        
     // if (print_info) {
     //   uBit.serial.printf("Test: %d, Label: %d, Predicted: %d\r\nLayer

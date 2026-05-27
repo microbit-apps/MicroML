@@ -24,6 +24,11 @@ namespace micro_ml {
     return 0;
   }
 
+  //% shim=__micro_ml::testing
+  export function testing(): Buffer {
+    return null;
+  }
+
   export function print_debug_info(): void {
     control.heapSnapshot()
     control.gc() // displays stats on hardware

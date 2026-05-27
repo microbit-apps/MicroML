@@ -742,7 +742,7 @@ namespace micro_ml {
     Saving
   }
 
-  class NeuralNetworkTrainingScene extends CursorScene {
+  class NeuralNetworkTrainingScene extends Scene {
     private state: NeuralNetworkTrainingSceneState;
     private neuralNetworkSpec: NeuralNetworkSpec = null;
     private graphBuffer: number[];
@@ -774,44 +774,46 @@ namespace micro_ml {
     startup() {
       super.startup();
 
-      this.startTrainingBtn = new Button({
-        parent: null,
-        style: user_interface_base.ButtonStyles.ShadowedWhite,
-        icon: "rule_arrow",
-        ariaId: "Start training",
-        x: 0,
-        y: 44,
-        onClick: (button: Button) => {
-          // this.state = NeuralNetworkConstructSceneState.LayerInfo
+      // this.startTrainingBtn = new Button({
+      //   parent: null,
+      //   style: user_interface_base.ButtonStyles.ShadowedWhite,
+      //   icon: "rule_arrow",
+      //   ariaId: "Start training",
+      //   x: 0,
+      //   y: 44,
+      //   onClick: (button: Button) => {
+      //     // this.state = NeuralNetworkConstructSceneState.LayerInfo
+      //
+      //     if (this.state == NeuralNetworkTrainingSceneState.Start || this.state == NeuralNetworkTrainingSceneState.Paused) {
+      //       this.state = NeuralNetworkTrainingSceneState.Training
+      //       button.setIcon("btn_stop")
+      //       button.ariaId = "Pause training"
+      //       button.update()
 
-          if (this.state == NeuralNetworkTrainingSceneState.Start || this.state == NeuralNetworkTrainingSceneState.Paused) {
-            this.state = NeuralNetworkTrainingSceneState.Training
-            button.setIcon("btn_stop")
-            button.ariaId = "Pause training"
-            button.update()
+      construct_nn(
+        Buffer.fromArray(this.neuralNetworkSpec.layerDims),
+        Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums),
+        DatasetEnum.ACCEL
+      );
 
-            construct_nn(
-              Buffer.fromArray(this.neuralNetworkSpec.layerDims),
-              Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums),
-              DatasetEnum.ACCEL,
-            );
-
-            train_nn(
-              this.neuralNetworkSpec.epochs,
-              0.5,
-              (l: number) => {
-                this.pushToGraphBuffer(l)
-              }
-            );
-
-          } else if (this.state == NeuralNetworkTrainingSceneState.Training) {
-            this.state = NeuralNetworkTrainingSceneState.Paused
-            button.setIcon("rule_arrow")
-            button.ariaId = "Resume training"
-            button.update()
+      control.inBackground(() => {
+        train_nn(
+          this.neuralNetworkSpec.epochs,
+          0.5,
+          (l: number) => {
+            this.pushToGraphBuffer(l)
           }
-        }
-      });
+        );
+      })
+
+          // } else if (this.state == NeuralNetworkTrainingSceneState.Training) {
+          //   this.state = NeuralNetworkTrainingSceneState.Paused
+          //   button.setIcon("rule_arrow")
+          //   button.ariaId = "Resume training"
+          //   button.update()
+          // }
+      //   }
+      // });
 
       // this.saveModelBtn = new Button({
       //     parent: null,
@@ -825,7 +827,7 @@ namespace micro_ml {
       //     },
       // });
 
-      this.navigator.setBtns([[this.startTrainingBtn]])
+      // this.navigator.setBtns([[this.startTrainingBtn]])
     }
 
     private pushToGraphBuffer(loss: number) {
@@ -863,7 +865,7 @@ namespace micro_ml {
         ControllerButtonEvent.Pressed,
         controller.B.id,
         () => {
-            this.app.popScene()
+          this.app.popScene()
         }
       )
     }
@@ -948,7 +950,6 @@ namespace micro_ml {
         1,
       )
 
-      this.navigator.drawComponents();
       super.draw()
     }
   }

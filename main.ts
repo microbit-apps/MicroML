@@ -1,5 +1,11 @@
 new micro_ml.App();
 
+// const b: Buffer = micro_ml.testing();
+// basic.showNumber(b.length)
+// basic.showNumber(b.toArray(NumberFormat.Float32LE)[0])
+// basic.showNumber(b.toArray(NumberFormat.Float32LE)[1])
+
+
 // namespace micro_ml {
   // let i = 0;
 

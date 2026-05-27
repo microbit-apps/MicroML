@@ -66,10 +66,12 @@ namespace micro_ml {
       )
 
 
-      const nnTestCB = (results: Buffer) => {
-        const label: string = results.getNumber(NumberFormat.Float32BE, 0).toString();
-        const pred: string = results.getNumber(NumberFormat.Float32BE, 1).toString();
-        const confidence: string = results.getNumber(NumberFormat.Float32BE, 2).toString().slice(0, 3);
+      const nnTestCB = (resultsBuf: Buffer) => {
+        const results = resultsBuf.toArray(NumberFormat.Float32LE)
+
+        const label: string = results[0].toString().slice(0, 4);
+        const pred: string = results[1].toString().slice(0, 4);
+        const confidence: string = results[2].toString().slice(0, 4);
         this.testResults.push("1: " + label + " Pred: " + pred + " Conf: " + confidence);
       }
 
