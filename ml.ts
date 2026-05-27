@@ -5,7 +5,7 @@ namespace micro_ml {
   }
 
   //% shim=__micro_ml::train_nn
-  export function train_nn(epochs: number, learning_rate: number, infoCB: (s: number) => void): void {
+  export function train_nn(epochs: number, learning_rate: number, lossCB: (l: number) => void): void {
     console.log("pxtsim hack")
   }
 

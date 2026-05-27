@@ -46,7 +46,7 @@ namespace micro_ml {
         controller.B.id,
         () => {
           if (this.state !== TestingSceneState.Testing) {
-            this.app.popScene()
+            this.app.popScene();
           }
         }
       )
@@ -55,7 +55,7 @@ namespace micro_ml {
         ControllerButtonEvent.Pressed,
         controller.up.id,
         () => {
-          this.currentIdx = (this.currentIdx - 1 + 10) % 10;
+          this.currentIdx = Math.max(0, this.currentIdx - 1);
         }
       )
 
@@ -63,7 +63,7 @@ namespace micro_ml {
         ControllerButtonEvent.Pressed,
         controller.down.id,
         () => {
-          this.currentIdx = ((this.currentIdx + 1) % 10)
+          this.currentIdx = Math.min(this.currentIdx + 1, this.testResults.length - this.maxTestResultsOnScreen)
         }
       )
 
@@ -73,8 +73,8 @@ namespace micro_ml {
         const label: string = results[0].toString().slice(0, 4);
         const pred: string = results[1].toString().slice(0, 4);
         const confidence: string = results[2].toString().slice(0, 4);
-        this.testResults.push((this.testResults.length + 1) + ": Label: " + label + " Pred: " + pred + " Conf: " + confidence);
-      }
+        this.testResults.push((this.testResults.length + 1) + ": L: " + label + " P: " + pred + " C: " + confidence);
+      };
 
       this.state = TestingSceneState.Testing;
       test_nn(nnTestCB)
@@ -89,7 +89,7 @@ namespace micro_ml {
           Screen.LEFT_EDGE + 2,
           Screen.TOP_EDGE + (i * 10),
           15 // Black in the default palette
-        )
+        );
       })
     }
 

@@ -444,7 +444,6 @@ namespace micro_ml {
             }
             case NeuralNetworkConstructSceneState.AddingLayerNeuronCount: {
               // this.currentIdx = (this.currentIdx + 1) % layersLen;
-              const maxNeurons = 32; // Arbitrary.
               this.nnSpec.layerDims[this.currentIdx] = Math.max(this.nnSpec.layerDims[this.currentIdx] - 1, 1);
               break;
             }
@@ -569,7 +568,6 @@ namespace micro_ml {
         );
       }
 
-      const side = (x < Screen.HALF_WIDTH) ? 1 : -1
       const infoBoxY = 5;
       const connectorWidth = 5;
 
@@ -578,6 +576,7 @@ namespace micro_ml {
 
       let infoBoxX: number;
       let connectorX: number;
+
       if ((x - (width >> 1)) < Screen.HALF_WIDTH) {
         infoBoxX = Math.min(Screen.WIDTH, x + (width >> 1) + connectorWidth)
         connectorX = infoBoxX - connectorWidth
@@ -617,19 +616,6 @@ namespace micro_ml {
       );
 
       let layerInfoText: string[];
-      //  = [
-      //     "Use left/right/B",
-      //     "",
-      //     "loreum ips",
-      //     "loreum ips",
-      //     "loreum ips",
-      //     "loreum ips",
-      //     "loreum ips",
-      //     "loreum ips",
-      //     "loreum ips",
-      //     "loreum ips",
-      //     "loreum ips"
-      // ]
 
       if (this.currentIdx == 0) {
         layerInfoText = [
@@ -750,8 +736,6 @@ namespace micro_ml {
     private graphBuffer: number[];
     private graphBufferMaxLen: number;
 
-    private startTrainingBtn: Button;
-    // private saveModelBtn: Button;
 
     private leftMargin: number = 25;
     private rightMargin: number = 5;
@@ -792,21 +776,52 @@ namespace micro_ml {
       //       button.ariaId = "Pause training"
       //       button.update()
 
-      construct_nn(
-        Buffer.fromArray(this.neuralNetworkSpec.layerDims),
-        Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums),
-        DatasetEnum.ACCEL
-      );
+      // basic.showNumber(0)
+      // const nnSpec: NeuralNetworkSpec = {
+      //   datasetSpec: ACCEL_DATASET_SPEC,
+      //   layerDims: [ACCEL_DATASET_SPEC.numFeatures, 8, ACCEL_DATASET_SPEC.numLabels],
+      //   activation_function_enums: [ActivationFunctionEnum.Sigmoid, ActivationFunctionEnum.SoftMax],
+      //   epochs: 30,
+      // };
+      //
+      // construct_nn(Buffer.fromArray(nnSpec.layerDims), Buffer.fromArray(nnSpec.activation_function_enums), DatasetEnum.ACCEL)
+
+      // const nnTestCB = (resultsBuf: Buffer) => {
+      //   const results = resultsBuf.toArray(NumberFormat.Float32LE)
+      //
+      //   const label: string = results[0].toString().slice(0, 4);
+      //   const pred: string = results[1].toString().slice(0, 4);
+      //   const confidence: string = results[2].toString().slice(0, 4);
+      //   datalogger.logData([
+      //     datalogger.createCV("label", label),
+      //     datalogger.createCV("pred", pred),
+      //     datalogger.createCV("conf", confidence)
+      //   ])
+      // }
+      //
+      // basic.showNumber(1)
+      // train_nn(nnSpec.epochs, 0.015, (l: number) => {
+      //   this.pushToGraphBuffer(l / 1000)
+      //   // basic.pause(1) // yield
+      // })
+      // basic.showNumber(2)
+      // test_nn(nnTestCB)
+
+      // construct_nn(
+      //   Buffer.fromArray(this.neuralNetworkSpec.layerDims),
+      //   Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums),
+      //   DatasetEnum.ACCEL
+      // );
 
       // control.inBackground(() => {
-      train_nn(
-        this.neuralNetworkSpec.epochs,
-        0.5,
-        (l: number) => {
-          this.pushToGraphBuffer(l)
-          basic.pause(1) // yield
-        }
-      );
+      // train_nn(
+      //   this.neuralNetworkSpec.epochs,
+      //   0.5,
+      //   (l: number) => {
+      //     this.pushToGraphBuffer(l)
+      //     basic.pause(1) // yield
+      //   }
+      // );
       // })
 
       // } else if (this.state == NeuralNetworkTrainingSceneState.Training) {
@@ -871,6 +886,15 @@ namespace micro_ml {
           this.app.popScene()
         }
       )
+
+      const ld = Buffer.fromArray(this.neuralNetworkSpec.layerDims);
+      const afe = Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums);
+      construct_nn(ld, afe, DatasetEnum.ACCEL);
+
+      train_nn(this.neuralNetworkSpec.epochs, 0.015, (l: number) => {
+        this.pushToGraphBuffer(l / 1000) // * 1000 on C++ end, since TAG_NUMBER() doesn't work with doubles nor floats.
+        basic.pause(1) // yield
+      });
     }
 
     drawGraph() {
@@ -953,19 +977,21 @@ namespace micro_ml {
         1,
       )
 
-      let txt;
-      if (this.state == NeuralNetworkTrainingSceneState.Training) {
-        txt = "Training..."
-      } else if (this.state == NeuralNetworkTrainingSceneState.TrainingComplete) {
-        txt = "Training Done! Press A"
-      }
-
-      screen().print(
-        txt,
-        (screen().width - (txt.length * font.charWidth)) >> 1,
-        screen().height - 10,
-        1,
-      )
+      // let txt = null;
+      // if (this.state == NeuralNetworkTrainingSceneState.Training) {
+      //   txt = "Training..."
+      // } else if (this.state == NeuralNetworkTrainingSceneState.TrainingComplete) {
+      //   txt = "Training Done! Press A"
+      // }
+      //
+      // if (txt != null) {
+      //   screen().print(
+      //     txt,
+      //     (screen().width - (txt.length * font.charWidth)) >> 1,
+      //     screen().height - 10,
+      //     1,
+      //   )
+      // }
 
       super.draw()
     }

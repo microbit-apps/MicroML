@@ -160,9 +160,13 @@ void train_nn(int epochs, float learning_rate, Action loss_cb) {
       delete[] one_hot;
     }
 
-    runAction1(loss_cb, TAG_NUMBER(epoch_loss_cum / (float)ds->total_len));
-    // uBit.serial.printf("Training epoch: %d, %d, %d", epoch, (int)
-    // epoch_loss_cum, ds->total_len); uBit.serial.printf("\r\n");
+    // uBit.serial.printf("Training epoch: %d, %d, %d\r\n", epoch, (int) epoch_loss_cum, ds->total_len);
+
+    // int scaled_loss = (int) ((epoch_loss_cum / (float)ds->total_len) * 1000);
+
+    runAction1(loss_cb, TAG_NUMBER((int) ((epoch_loss_cum / ds->total_len) * 1000)));
+    // uBit.serial.printf("Training epoch: %d, %d, %d\r\n", epoch, (int) epoch_loss_cum, ds->total_len);
+    // uBit.serial.printf("\r\n");
     // print_float("Loss: ", epoch_loss_cum / ds->total_len);
     // uBit.serial.printf("\r\n");
     // uBit.sleep(10);
@@ -260,10 +264,10 @@ Buffer test_nn(Action a) {
     const float test_data[3] = {(float) dp->label, (float)pred, layer_input[pred]};
     runAction1(a, (TValue) mkBuffer(test_data, sizeof(test_data)));
 
-    uBit.serial.printf("Test: %d, Label: %d, Predicted: %d, ", ds_i, dp->label, pred);
-    print_float("Confidence: ", layer_input[pred]);
-    uBit.serial.printf("\r\n");
-    uBit.sleep(25);
+    // uBit.serial.printf("Test: %d, Label: %d, Predicted: %d, ", ds_i, dp->label, pred);
+    // print_float("Confidence: ", layer_input[pred]);
+    // uBit.serial.printf("\r\n");
+    // uBit.sleep(25);
 
     // if (print_info) {
     //   uBit.serial.printf("Test: %d, Label: %d, Predicted: %d\r\nLayer
