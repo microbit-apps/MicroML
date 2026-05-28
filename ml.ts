@@ -4,6 +4,7 @@ namespace micro_ml {
     console.log("pxtsim hack")
   }
 
+
   //% shim=__micro_ml::train_nn
   export function train_nn(epochs: number, learning_rate: number, lossCB: (l: number) => void): void {
     console.log("pxtsim hack")
@@ -24,10 +25,16 @@ namespace micro_ml {
     return 0;
   }
 
-  //% shim=__micro_ml::testing
-  export function testing(): Buffer {
+  //% shim=__micro_ml::get_weights
+  export function get_weights(): Buffer {
     return null;
   }
+
+  //% shim=__micro_ml::get_biases
+  export function get_biases(): Buffer {
+    return null;
+  }
+
 
   export function print_debug_info(): void {
     control.heapSnapshot()

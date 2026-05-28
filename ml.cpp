@@ -90,14 +90,18 @@ static NeuralNetwork *nn = nullptr;
 
 #define DEFAULT_LEARNING_RATE 0.015f
 
+// void destruct_nn() {
+//   if (nn) {
+//       for (int i = 0; i < nn->num_layers; i++)
+//         destruct_layer(nn->layers[i]);
+//       delete[] nn->layers;
+//       delete nn;
+//   }
+// }
+
 //%
 void construct_nn(Buffer layer_dims, Buffer activation_fn_enums, DatasetEnum dataset_enum) {
-  // if (nn) {
-  //     for (int i = 0; i < nn->num_layers; i++)
-  //       destruct_layer(&nn->layer[i]);
-  //     delete[] nn->layer;
-  //     delete nn;
-  // }
+  // destruct_nn(); // TODO: !!!!!!!!
 
   int num_layers = layer_dims->length - 1;
   Layer **layers = new Layer *[num_layers];
@@ -204,10 +208,44 @@ static float *unpack_buffer_into_floats(Buffer buf) {
 }
 
 //%
-Buffer testing() {
-  const float test_data[3] = {0.1f, 2.1f, -10.0f};
+Buffer get_weights() {
+  size_t num_weights = 0;
 
-  return mkBuffer(test_data, sizeof(test_data));
+  for (int i = 0; i < nn->num_layers; i++) {
+    num_weights += nn->layers[i]->weights_len;
+  }
+
+  float* weights = new float[num_weights];
+
+  size_t weight_idx = 0;
+  for (int i = 0; i < nn->num_layers; i++) {
+    Layer* l = nn->layers[i];
+    memcpy(weights + weight_idx, l->weights, l->weights_len * sizeof(float));
+    weight_idx += l->weights_len;
+  }
+  
+  return mkBuffer(weights, num_weights * sizeof(float));
+}
+
+
+//%
+Buffer get_biases() {
+  size_t num_biases = 0;
+
+  for (int i = 0; i < nn->num_layers; i++) {
+    num_biases += nn->layers[i]->biases_len;
+  }
+
+  float* biases = new float[num_biases];
+
+  size_t bias_idx = 0;
+  for (int i = 0; i < nn->num_layers; i++) {
+    Layer* l = nn->layers[i];
+    memcpy(biases + bias_idx, l->biases, l->biases_len * sizeof(float));
+    bias_idx += l->biases_len;
+  }
+  
+  return mkBuffer(biases, num_biases * sizeof(float));
 }
 
 //%
@@ -237,6 +275,8 @@ Buffer evaluate(Buffer input_buf) {
 
   return input_buf;
 }
+
+
 
 //%
 Buffer test_nn(Action a) {

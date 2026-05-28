@@ -23,7 +23,7 @@ namespace micro_ml {
             style: ButtonStyles.Transparent,
             icon: "neuralNetwork1",
             ariaId: "Train a model",
-            x: -40,
+            x: -50,
             y: 25,
             onClick: () => {
                 this.app.pushScene(new TrainingScene(this.app))
@@ -34,18 +34,30 @@ namespace micro_ml {
             style: ButtonStyles.Transparent,
             icon: "linearGraph3",
             ariaId: "Test a model",
-            x: 0,
+            x: -25,
             y: 25,
             onClick: () => {
-                this.app.pushScene(new TestingScene(this.app))
+                this.app.pushScene(new TrainingScene(this.app))
             },
         }),
+        new Button({
+            parent: null,
+            style: ButtonStyles.Transparent,
+            icon: "linearGraph3",
+            ariaId: "Evaluate a model",
+            x: 25,
+            y: 25,
+            onClick: () => {
+                this.app.pushScene(new EvaluationScene(this.app))
+            },
+        }),
+
         new Button({
           parent: null,
           style: ButtonStyles.Transparent,
           icon: "largeDisk",
           ariaId: "Build a dataset",
-          x: 40,
+          x: 50,
           y: 25,
           onClick: () => {
             this.app.pushScene(new SimpleCursorScene(this.app))

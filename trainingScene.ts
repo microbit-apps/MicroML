@@ -881,6 +881,15 @@ namespace micro_ml {
 
       control.onEvent(
         ControllerButtonEvent.Pressed,
+        controller.A.id,
+        () => {
+          this.app.popScene()
+          this.app.popScene()
+        }
+      )
+
+      control.onEvent(
+        ControllerButtonEvent.Pressed,
         controller.B.id,
         () => {
           this.app.popScene()
