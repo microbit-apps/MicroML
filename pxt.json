@@ -1,6 +1,6 @@
 {
     "name": "microml",
-    "version": "0.0.12",
+    "version": "#\u001b[3~",
     "dependencies": {
         "core": "*",
         "radio": "*",
