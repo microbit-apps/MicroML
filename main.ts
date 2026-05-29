@@ -31,7 +31,9 @@ namespace micro_ml {
   // }
 
   construct_nn(Buffer.fromArray(nnSpec.layerDims), Buffer.fromArray(nnSpec.activation_function_enums), DatasetEnum.ACCEL)
-  // basic.showNumber()
+
+  basic.showNumber(get_biases().length / 4)
+  basic.showNumber(get_weights().length / 4)
   
   // const nnTestCB = (resultsBuf: Buffer) => {
   //   const results = resultsBuf.toArray(NumberFormat.Float32LE)
