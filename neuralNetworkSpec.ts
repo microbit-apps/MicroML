@@ -4,7 +4,8 @@ namespace micro_ml {
   import AppInterface = user_interface_base.AppInterface
   import Scene = user_interface_base.Scene
   import SceneManager = user_interface_base.SceneManager
-
+  import Sensor = sensors.Sensor
+  import MicrobitSensors = sensors.MicrobitSensors
 
   enum DataOrigin {
     Datalogger,
@@ -17,7 +18,8 @@ namespace micro_ml {
       numFeatures: number,
       numLabels: number,
       labelNames: string[],
-      dataOrigin: DataOrigin
+      dataOrigin: DataOrigin,
+      sensors: MicrobitSensors[]
   }
 
   export type NeuralNetworkSpec = {
@@ -34,20 +36,31 @@ namespace micro_ml {
     numFeatures: 2,
     numLabels: 2,
     labelNames: ["0", "1"],
-    dataOrigin: DataOrigin.BSS
+    dataOrigin: DataOrigin.BSS,
+    sensors: []
   }
 
   const ACCEL_DATASET_SPEC: DatasetSpec = {
-    name: "Accelerometer",
+    name: "Shake",
     description: [""],
     numFeatures: 30,
     numLabels: 2,
     labelNames: ["Still", "Shaking"],
-    dataOrigin: DataOrigin.BSS
+    dataOrigin: DataOrigin.BSS,
+    sensors: [MicrobitSensors.AccelerometerX, MicrobitSensors.AccelerometerY, MicrobitSensors.AccelerometerZ]
   }
 
   export class DatasetManager {
+    private static currentDataset: number = 0;
     public static datasetSpecs: DatasetSpec[] = [XOR_DATASET_SPEC, ACCEL_DATASET_SPEC];
+
+    public static getLabelNameFromPred(pred: number): string {
+      return DatasetManager.datasetSpecs[DatasetManager.currentDataset].labelNames[pred]
+    }
+
+    public static getSensors(): MicrobitSensors[] {
+      return DatasetManager.datasetSpecs[DatasetManager.currentDataset].sensors
+    }
 
   }
 }

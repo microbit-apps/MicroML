@@ -26,8 +26,8 @@ namespace micro_ml {
     return false;
   }
 
-  //% shim=__micro_ml::evaluate
-  export function evaluate(input_data: Buffer): number {
+  //% shim=__micro_ml::evaluate_nn
+  export function evaluate_nn(input_data: Buffer): number {
     return 0;
   }
 

@@ -254,33 +254,22 @@ Buffer get_biases() {
 }
 
 //%
-Buffer evaluate(Buffer input_buf) {
-  // if (!nn)
-  //     return -1.0f;
-  // float *input = unpack_buffer_into_floats(input_buf);
-  // const float *output = forward_pass(input);
-  // int best = 0;
-  // int out_dim = nn->layer[nn->num_layers - 1].hypothesis_len;
-  // for (int i = 1; i < out_dim; i++)
-  //     if (output[i] > output[best])
-  //         best = i;
-  // delete[] input;
-  // return (float)best;
-  // handler.call();
-  // registerWithDal(1000, event, handler);
-  // EventModel::defaultEventBus->listen(event, DEVICE_BUTTON_EVT_DOWN,
-  // handler);
+int evaluate_nn(Buffer input_buf) {
+  const float *layer_input = unpack_buffer_into_floats(input_buf);
+  for (int i = 0; i < nn->num_layers; i++) {
+    forward_pass(nn->layers[i], layer_input);
+    layer_input = nn->layers[i]->hypothesis_cache;
+  }
 
-  //
-  // Event(1000, event);
-  // Event(1000, event);
-  // Event(1000, event);
+  int pred = 0;
+  const int num_classes = nn->layers[nn->num_layers - 1]->output_len;
+  for (int c = 1; c < num_classes; c++) {
+    if (layer_input[c] > layer_input[pred])
+      pred = c;
+  }
 
-  // runAction0(handler);
-
-  return input_buf;
+  return pred;
 }
-
 
 
 //%

@@ -21,38 +21,6 @@ namespace micro_ml {
     BSS
   }
 
-  export const XOR_DATASET_SPEC: DatasetSpec = {
-    name: "XOR",
-    description: [""],
-    numFeatures: 2,
-    numLabels: 2,
-    labelNames: ["0", "1"],
-    dataOrigin: DataOrigin.BSS
-  }
-
-  export const ACCEL_DATASET_SPEC: DatasetSpec = {
-    name: "Shake",
-    description: [""],
-    numFeatures: 30,
-    numLabels: 2,
-    labelNames: ["Still", "Shaking"],
-    dataOrigin: DataOrigin.BSS
-  }
-
-  const EXAMPLE_: DatasetSpec = {
-    name: "Custom1",
-    description: [""],
-    numFeatures: 30,
-    numLabels: 2,
-    labelNames: ["Still", "Shaking"],
-    dataOrigin: DataOrigin.BSS
-  }
-
-  class DatasetManager {
-    public static datasetSpecs: DatasetSpec[] = [XOR_DATASET_SPEC, ACCEL_DATASET_SPEC];
-  }
-
-
   enum State {
     Start,
     DatasetSelected,
@@ -1153,7 +1121,7 @@ namespace micro_ml {
         trainingSceneBackground,
         -Screen.HALF_WIDTH,
         -Screen.HALF_HEIGHT
-      )
+      );
 
       this.draw_tutorial();
       this.navigator.drawComponents();

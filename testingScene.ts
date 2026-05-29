@@ -18,7 +18,7 @@ namespace micro_ml {
     private testResults: string[][];
     private state: TestingSceneState;
     private maxTestResultsOnScreen = 10;
-    private accuracy: number;
+    private accuracyAsStr: string;
     private prediction: number;
     private confusionMatrix: number[];
 
@@ -40,7 +40,7 @@ namespace micro_ml {
         ControllerButtonEvent.Pressed,
         controller.A.id,
         () => {
-          // this.app.popScene()
+          this.app.popScene()
         }
       )
 
@@ -80,7 +80,7 @@ namespace micro_ml {
       };
 
       this.state = TestingSceneState.Testing;
-      this.accuracy = test_nn(nnTestCB).toArray(NumberFormat.Float32LE)[0]
+      this.accuracyAsStr = test_nn(nnTestCB).toArray(NumberFormat.Float32LE)[0].toString().slice(0, 4);
       this.state = TestingSceneState.Done;
     }
 
@@ -107,7 +107,7 @@ namespace micro_ml {
         })
       })
 
-      const accuracyStr = `Acc: ${this.accuracy}%`
+      const accuracyStr = `Acc: ${this.accuracyAsStr}%`
       Screen.print(
         accuracyStr,
         0 - (font.charWidth * accuracyStr.length >> 1),
