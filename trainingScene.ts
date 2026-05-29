@@ -120,12 +120,14 @@ namespace micro_ml {
       )
 
       const len = DatasetManager.datasetSpecs.length;
-      const startX = -Screen.HALF_WIDTH + 16;
+
+      const boxWidth = 50;
+      const startX = (boxWidth >> 1);
       const startY = -Screen.HALF_HEIGHT + 16;
       Screen.fillRect(
         startX,
         startY,
-        50,
+        boxWidth,
         (len + 2) * font.charHeight,
         3
       )
@@ -674,11 +676,10 @@ namespace micro_ml {
     private xMargin = 18;
     draw() {
       Screen.drawTransparentImage(
-        trainingSceneBackground,
+        constructSceneBackground,
         -Screen.HALF_WIDTH,
         -Screen.HALF_HEIGHT
       )
-
 
       const layers = this.nnSpec.layerDims
       const availableWidth = Screen.WIDTH - (2 * this.xMargin);
