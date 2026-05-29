@@ -5,11 +5,11 @@ namespace micro_ml {
   import font = user_interface_base.font
   import Button = user_interface_base.Button
   import CursorScene = user_interface_base.CursorScene
-  import Sensor = sensors.Sensor
+  // import Sensor = sensors.Sensor
 
 
   export class EvaluationScene extends Scene {
-    private sensors: Sensor[];
+    // private sensors: Sensor[];
 
     constructor(app: AppInterface) {
       super(app);

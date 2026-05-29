@@ -7,8 +7,7 @@
         "microphone": "*",
         "datalogger": "*",
         "user-interface-base": "github:microbit-apps/user-interface-base#v0.0.34",
-        "microgui": "github:microbit-apps/microgui#v0.0.45",
-        "sensors": "github:microbit-apps/sensors#v0.0.25"
+        "microgui": "github:microbit-apps/microgui#v0.0.45"
     },
     "files": [
         "main.ts",
