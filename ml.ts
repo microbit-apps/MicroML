@@ -1,4 +1,10 @@
 namespace micro_ml {
+  //% shim=__micro_ml::nn_is_init
+  export function nn_is_init(): boolean {
+    return false;
+  }
+
+
   //% shim=__micro_ml::construct_nn
   export function construct_nn(layer_dims: Buffer, activation_function_enums: Buffer, dataset_enum: DatasetEnum): void {
     console.log("pxtsim hack")

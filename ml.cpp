@@ -100,6 +100,11 @@ static NeuralNetwork *nn = nullptr;
 // }
 
 //%
+bool nn_is_init() {
+  return (nn != nullptr);
+}
+
+//%
 void construct_nn(Buffer layer_dims, Buffer activation_fn_enums, DatasetEnum dataset_enum) {
   // destruct_nn(); // TODO: !!!!!!!!
 
@@ -293,9 +298,10 @@ Buffer test_nn(Action a) {
     }
 
     int pred = 0;
-    for (int c = 1; c < ds->num_classes; c++)
+    for (int c = 1; c < ds->num_classes; c++) {
       if (layer_input[c] > layer_input[pred])
         pred = c;
+    }
 
     if (pred == dp->label)
       correct++;

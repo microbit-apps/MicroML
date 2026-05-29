@@ -122,7 +122,7 @@ namespace micro_ml {
       const len = DatasetManager.datasetSpecs.length;
 
       const boxWidth = 50;
-      const startX = (boxWidth >> 1);
+      const startX = 0 - (boxWidth >> 1);
       const startY = -Screen.HALF_HEIGHT + 16;
       Screen.fillRect(
         startX,
@@ -737,7 +737,6 @@ namespace micro_ml {
     private graphBuffer: number[];
     private graphBufferMaxLen: number;
 
-
     private leftMargin: number = 25;
     private rightMargin: number = 5;
     private topMargin: number = 3;
@@ -747,6 +746,8 @@ namespace micro_ml {
     private graphH: number;
 
     private yAxisRange: number[];
+    private trainingStartTime: number;
+    private trainingFinishTime: number;
 
     constructor(app: AppInterface, neuralNetworkSpec: NeuralNetworkSpec) {
       super(app);
@@ -902,10 +903,12 @@ namespace micro_ml {
       construct_nn(ld, afe, DatasetEnum.ACCEL);
 
       this.state = NeuralNetworkTrainingSceneState.Training
+      this.trainingStartTime = input.runningTime();
       train_nn(this.neuralNetworkSpec.epochs, 0.015, (l: number) => {
         this.pushToGraphBuffer(l / 1000) // * 1000 on C++ end, since TAG_NUMBER() doesn't work with doubles nor floats.
         basic.pause(1) // yield
       });
+      this.trainingFinishTime = input.runningTime();
       this.state = NeuralNetworkTrainingSceneState.TrainingComplete
     }
 
@@ -989,20 +992,23 @@ namespace micro_ml {
         1,
       )
 
-      let txt = null;
+      let txt: string[] = null;
       if (this.state == NeuralNetworkTrainingSceneState.Training) {
-        txt = "Training..."
+        txt = ["Training..."]
       } else if (this.state == NeuralNetworkTrainingSceneState.TrainingComplete) {
-        txt = "Training Done! Press A"
+        const t: string = ((this.trainingFinishTime - this.trainingStartTime) / 1000).toString().slice(0, 4);
+        txt = ["Training Done! Press A", `Took ${t} seconds`]
       }
 
       if (txt != null) {
-        screen().print(
-          txt,
-          (screen().width - (txt.length * font.charWidth)) >> 1,
-          screen().height - 10,
-          1,
-        )
+        txt.forEach((line: string, index: number) => {
+          screen().print(
+            line,
+            (screen().width - (line.length * font.charWidth) >> 1),
+            screen().height - (10 * (txt.length - index)),
+            1,
+          )
+        })
       }
 
       super.draw()

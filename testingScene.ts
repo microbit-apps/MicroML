@@ -15,9 +15,12 @@ namespace micro_ml {
 
   export class TestingScene extends Scene {
     private currentIdx: number;
-    private testResults: string[];
+    private testResults: string[][];
     private state: TestingSceneState;
     private maxTestResultsOnScreen = 10;
+    private accuracy: number;
+    private prediction: number;
+    private confusionMatrix: number[];
 
     constructor(app: AppInterface) {
       super(app);
@@ -73,24 +76,44 @@ namespace micro_ml {
         const label: string = results[0].toString().slice(0, 4);
         const pred: string = results[1].toString().slice(0, 4);
         const confidence: string = results[2].toString().slice(0, 4);
-        this.testResults.push((this.testResults.length + 1) + ": L: " + label + " P: " + pred + " C: " + confidence);
+        this.testResults.push([""+(this.testResults.length + 1), label, pred, confidence]);
       };
 
       this.state = TestingSceneState.Testing;
-      test_nn(nnTestCB)
+      this.accuracy = test_nn(nnTestCB).toArray(NumberFormat.Float32LE)[0]
       this.state = TestingSceneState.Done;
     }
 
     drawTestResults() {
-      const lines = this.testResults.slice(this.currentIdx, this.currentIdx + this.maxTestResultsOnScreen);
-      lines.forEach((line, i) => {
-        Screen.print(
-          line,
-          Screen.LEFT_EDGE + 2,
-          Screen.TOP_EDGE + (i * 10),
-          15 // Black in the default palette
-        );
+      const cols = ["ID", "Label", "Pred", "Conf."];
+
+      const rows: string[][] = [
+        cols
+      ].concat(
+        this.testResults.slice(this.currentIdx, this.currentIdx + this.maxTestResultsOnScreen - 1)
+      );
+
+      const xMargin: number = 9;
+      const xSpacing = (Screen.WIDTH - xMargin) / cols.length
+      const ySpacing = 10;
+      rows.forEach((row: string[], rowIdx: number) => {
+        row.forEach((cols: string, colIdx: number) => {
+          Screen.print(
+            cols,
+            Screen.LEFT_EDGE + xMargin + (colIdx * xSpacing),
+            Screen.TOP_EDGE + (rowIdx * ySpacing),
+            15 // Black in the default palette
+          );
+        })
       })
+
+      const accuracyStr = `Acc: ${this.accuracy}%`
+      Screen.print(
+        accuracyStr,
+        0 - (font.charWidth * accuracyStr.length >> 1),
+        Screen.BOTTOM_EDGE - 10,
+        15 // Black in the default palette
+      );
     }
 
     draw() {
@@ -101,7 +124,10 @@ namespace micro_ml {
         Screen.HEIGHT,
         6
       )
-      this.drawTestResults();
+
+      if (this.state == TestingSceneState.Done) {
+        this.drawTestResults();
+      }
     }
   }
 }

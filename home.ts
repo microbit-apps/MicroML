@@ -22,8 +22,8 @@ namespace micro_ml {
             parent: null,
             style: ButtonStyles.Transparent,
             icon: "neuralNetwork1",
-            ariaId: "Train a model",
-            x: -50,
+            ariaId: "Train",
+            x: -60,
             y: 25,
             onClick: () => {
                 this.app.pushScene(new TrainingScene(this.app))
@@ -33,19 +33,21 @@ namespace micro_ml {
             parent: null,
             style: ButtonStyles.Transparent,
             icon: "linearGraph3",
-            ariaId: "Test a model",
-            x: -25,
+            ariaId: "Test",
+            x: -20,
             y: 25,
             onClick: () => {
-                this.app.pushScene(new TrainingScene(this.app))
+                if (nn_is_init()) { // TODO: Should tell the user to train it, for now just do nothing
+                  this.app.pushScene(new TestingScene(this.app))
+                }
             },
         }),
         new Button({
             parent: null,
             style: ButtonStyles.Transparent,
-            icon: "linearGraph3",
-            ariaId: "Evaluate a model",
-            x: 25,
+            icon: "sampleHeadsOrTails",
+            ariaId: "Evaluate",
+            x: 20,
             y: 25,
             onClick: () => {
                 this.app.pushScene(new EvaluationScene(this.app))
@@ -57,7 +59,7 @@ namespace micro_ml {
           style: ButtonStyles.Transparent,
           icon: "largeDisk",
           ariaId: "Build a dataset",
-          x: 50,
+          x: 60,
           y: 25,
           onClick: () => {
             this.app.pushScene(new SimpleCursorScene(this.app))
