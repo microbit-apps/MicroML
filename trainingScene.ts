@@ -1004,7 +1004,7 @@ namespace micro_ml {
         txt.forEach((line: string, index: number) => {
           screen().print(
             line,
-            (screen().width - (line.length * font.charWidth) >> 1),
+            (screen().width - (line.length * font.charWidth) >> 1), 
             screen().height - (10 * (txt.length - index)),
             1,
           )
