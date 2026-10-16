@@ -8,8 +8,6 @@ namespace micro_ml {
   import Sensor = sensors.Sensor
 
   const intraSampleFrequencyMS: number = 100;
-  const intraSampleQuantity: number = 10;
-  const sampleFrequencyMS: number = (intraSampleFrequencyMS * intraSampleFrequencyMS) - 1000 + 100;
 
   export class EvaluationScene extends Scene {
     private sensors: Sensor[];
@@ -32,15 +30,20 @@ namespace micro_ml {
       const uBitSensors: sensors.MicrobitSensors[] = DatasetManager.getSensors();
       this.sensors = uBitSensors.map(s => sensors.getMicrobitSensor(s));
 
-      this.samplingIntervalID = control.setInterval(
+      const inputLen = nn_input_len();
+      if (inputLen > 0 && this.sensors.length > 0) {
+        const samplesPerAxis = Math.idiv(inputLen, this.sensors.length);
+        const retriggerDelayMS = 1;
+        this.samplingIntervalID = control.setInterval(
           () => {
-              this.lastSample = sensors.getSamples(this.sensors, intraSampleQuantity, intraSampleFrequencyMS);
-              const pred = evaluate_nn(Buffer.fromArray(this.lastSample));
-              this.lastNNPredLabel = DatasetManager.getLabelNameFromPred(pred);
-          }, 
-          sampleFrequencyMS,
+            this.lastSample = sensors.getSamples(this.sensors, samplesPerAxis, intraSampleFrequencyMS);
+            const pred = evaluate_nn(packFloat32s(this.lastSample));
+            this.lastNNPredLabel = DatasetManager.getLabelNameFromPred(pred);
+          },
+          retriggerDelayMS,
           control.IntervalMode.Interval
-      );
+        );
+      }
     }
 
     deactivate(): void {
@@ -56,15 +59,15 @@ namespace micro_ml {
       );
 
 
-      const s: string = this.lastSample[0] + ", " + this.lastSample[1] + ", " + this.lastSample[2]
-
-      Screen.print(
-        s,
-        0 - (s.length * font.charWidth >> 1),
-        -20
-      )
-
       if (this.lastNNPredLabel !== undefined) {
+        const s: string = this.lastSample[0] + ", " + this.lastSample[1] + ", " + this.lastSample[2]
+
+        Screen.print(
+          s,
+          0 - (s.length * font.charWidth >> 1),
+          -20
+        )
+
         Screen.print(
           this.lastNNPredLabel,
           0 - (this.lastNNPredLabel.length * font.charWidth >> 1),

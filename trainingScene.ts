@@ -67,7 +67,7 @@ namespace micro_ml {
         ControllerButtonEvent.Pressed,
         controller.up.id,
         () => {
-          this.currentIdx = (this.currentIdx - 1 + DatasetManager.datasetSpecs.length) % DatasetManager.datasetSpecs.length;
+          this.currentIdx = (this.currentIdx - 1 + DatasetManager.datasets.length) % DatasetManager.datasets.length;
         }
       )
 
@@ -75,7 +75,7 @@ namespace micro_ml {
         ControllerButtonEvent.Pressed,
         controller.down.id,
         () => {
-          this.currentIdx = ((this.currentIdx + 1) % DatasetManager.datasetSpecs.length)
+          this.currentIdx = ((this.currentIdx + 1) % DatasetManager.datasets.length)
         }
       )
     }
@@ -87,7 +87,7 @@ namespace micro_ml {
         -Screen.HALF_HEIGHT
       )
 
-      const len = DatasetManager.datasetSpecs.length;
+      const len = DatasetManager.datasets.length;
 
       const boxWidth = 50;
       const startX = 0 - (boxWidth >> 1);
@@ -112,7 +112,7 @@ namespace micro_ml {
           (i == this.currentIdx) ? 7 : 1
         )
         Screen.print(
-          DatasetManager.datasetSpecs[i].name,
+          DatasetManager.datasets[i].datasetSpec.name,
           textStartX,
           textStartY + (i * font.charHeight),
           1
@@ -139,15 +139,17 @@ namespace micro_ml {
     private nnSpec: NeuralNetworkSpec;
     private doneCallback: (selected: NeuralNetworkSpec) => void;
 
-    constructor(app: AppInterface, datasetSpec: DatasetSpec, resultCallback: (selected: NeuralNetworkSpec) => void) {
+    constructor(app: AppInterface, resultCallback: (selected: NeuralNetworkSpec) => void) {
       super(app);
       this.currentIdx = 0;
       this.doneCallback = resultCallback;
+
+      const dsSpec = DatasetManager.currentDatasetSpec
       this.nnSpec = {
-        datasetSpec: datasetSpec,
-        layerDims: [datasetSpec.numFeatures, datasetSpec.numLabels],
+        datasetSpecIdx: DatasetManager.currentDatasetIdx,
+        layerDims: [dsSpec.numFeatures, dsSpec.numLabels],
         activation_function_enums: [ActivationFunctionEnum.SoftMax],
-        epochs: 50
+        epochs: 100
       }
 
       this.layerBtns = [];
@@ -185,7 +187,8 @@ namespace micro_ml {
 
               this.nnSpec.layerDims = this.nnSpec.layerDims.slice(0, this.nnSpec.layerDims.length - 1)
               this.nnSpec.layerDims.push(defaultNewLayerSize)
-              this.nnSpec.layerDims.push(this.nnSpec.datasetSpec.numLabels)
+
+              this.nnSpec.layerDims.push(DatasetManager.currentDatasetSpec.numLabels)
 
               this.nnSpec.activation_function_enums = this.nnSpec.activation_function_enums.slice(0, this.nnSpec.activation_function_enums.length - 1)
               this.nnSpec.activation_function_enums.push(ActivationFunctionEnum.Sigmoid)
@@ -608,8 +611,8 @@ namespace micro_ml {
           "Use <- -> B",
           "",
           "- " + this.nnSpec.layerDims[this.currentIdx] + " labels:",
-          "y1 = " + this.nnSpec.datasetSpec.labelNames[0],
-          "y2 = " + this.nnSpec.datasetSpec.labelNames[1],
+          "y1 = " + DatasetManager.currentDatasetSpec.labelNames[0],
+          "y2 = " + DatasetManager.currentDatasetSpec.labelNames[1],
           "",
           "- softmax",
           " activation",
@@ -868,7 +871,7 @@ namespace micro_ml {
 
       const ld = Buffer.fromArray(this.neuralNetworkSpec.layerDims);
       const afe = Buffer.fromArray(this.neuralNetworkSpec.activation_function_enums);
-      construct_nn(ld, afe, DatasetEnum.ACCEL);
+      construct_nn(ld, afe, this.neuralNetworkSpec.datasetSpecIdx as DatasetEnum);
 
       this.state = NeuralNetworkTrainingSceneState.Training
       this.trainingStartTime = input.runningTime();
@@ -1017,7 +1020,9 @@ namespace micro_ml {
 
           const cb = (selected: number) => {
             this.selectedDatabaseIdx = selected;
-            // basic.showString("cb")
+            if (selected !== null) {
+              DatasetManager.currentDatasetIdx = selected;
+            }
           }
           this.app.pushScene(new DatasetSelectScene(this.app, cb))
         },
@@ -1040,7 +1045,7 @@ namespace micro_ml {
           const cb = (selected: NeuralNetworkSpec) => { this.neuralNetworkSpec = selected }
           // const cb = (selected: NeuralNetworkSpec) => { this.setNNSpec(selected) }
 
-          this.app.pushScene(new NeuralNetworkConstructScene(this.app, DatasetManager.datasetSpecs[this.selectedDatabaseIdx], cb))
+          this.app.pushScene(new NeuralNetworkConstructScene(this.app, cb))
         },
         state: ["Configure the neural", "network for the best", "performance against", "your dataset."]
       })

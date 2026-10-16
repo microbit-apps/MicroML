@@ -2,6 +2,7 @@
 
 #include "datasets.h"
 #include "utils.h"
+#include <cstdio>
 
 namespace __micro_ml {
 struct NeuralNetwork {
@@ -25,15 +26,11 @@ struct Layer {
 };
 
 static void print_float(const char *prepend, float val);
-void print_layer(Layer *l);
-void print_nn();
 
 static float *malloc_and_fill_random(int len) {
   float *arr = new float[len];
-  const int range = 2;
   for (int i = 0; i < len; i++)
-    arr[i] = (float)random(range + 1) -
-             1.0f; // +1, since random(range) returns [0, range-1]
+    arr[i] = (random(10000) - 4999.5f) / 4999.5f; /// symmetric dist
   return arr;
 }
 
@@ -121,8 +118,7 @@ void construct_nn(Buffer layer_dims, Buffer activation_fn_enums, DatasetEnum dat
   nn = new NeuralNetwork;
   nn->layers = layers;
   nn->num_layers = num_layers;
-  nn->dataset = construct_train_test_split_dataset(
-      dataset_enum, 0.5, DATASET_RAM_BUDGET_BYTES_DEFAULT);
+  nn->dataset = construct_train_test_split_dataset(dataset_enum, 0.5, DATASET_RAM_BUDGET_BYTES_DEFAULT);
   nn->learning_rate = DEFAULT_LEARNING_RATE;
 }
 
@@ -190,15 +186,13 @@ void train_nn(int epochs, float learning_rate, Action loss_cb) {
 }
 
 static void print_float(const char *prepend, float val) {
-  int as_int = (int)val;
-  int as_frac = (int)((val - as_int) * 100.0f);
+    int sign = (val < 0.0f) ? -1 : 1;
+    val *= sign;
 
-  if (as_frac < 0)
-    as_frac = -as_frac;
-  if (as_frac < 10)
-    uBit.serial.printf("%s%d.0%d", prepend, as_int, as_frac);
-  else
-    uBit.serial.printf("%s%d.%d", prepend, as_int, as_frac);
+    int as_int = (int)val;
+    int as_frac = (int)((val - as_int) * 100.0f);
+
+    DMESGN("%s%s%d.%02d", prepend, sign < 0 ? "-" : "", as_int, as_frac);
 }
 
 
@@ -271,6 +265,12 @@ int evaluate_nn(Buffer input_buf) {
   return pred;
 }
 
+//%
+int nn_input_len() {
+  if (nn == nullptr)
+    return 0;
+  return nn->layers[0]->input_len;
+}
 
 //%
 Buffer test_nn(Action a) {
@@ -331,7 +331,7 @@ Buffer test_nn(Action a) {
 }
 
 //%
-bool save_current_nn() {}
+bool save_current_nn() {return true;}
 
 // float test_nn() {
 //     if (!nn || !nn->dataset)
@@ -430,4 +430,63 @@ static float *backward_pass(Layer *layer, const float *upstream_grad) {
   return downstream_grad;
 }
 
+
+static void float_array_to_char(float* arr, int len, char* out) {
+  for (int i = 0; i < len; i++) {
+    if (i % len == 0)
+      DMESGN("[");
+    else
+      DMESGN(", ");
+
+    print_float("", arr[i]);
+
+    if ((i + 1) % len == 0)
+      DMESG("]");
+  }
+}
+
+static void print_layer_over_serial(Layer *l, bool show_all) {
+  // char dmesg_out[DEVICE_DMESG_BUFFER_SIZE] = {0};
+  // int dmesg_out_idx = 0;
+  //
+  // dmesg_out_idx += snprintf(
+  //     dmesg_out+ dmesg_out_idx,
+  //     sizeof(dmesg_out) - dmesg_out_idx,
+  //     "Dim: (%d, %d)\r\n"
+  //     "Activation Function Enum: %d\r\n",
+  //     l->input_len,
+  //     l->output_len,
+  //     l->afe
+  // );
+  //
+  // dmesg_out_idx += snprintf(dmesg_out + dmesg_out_idx, sizeof(dmesg_out) - dmesg_out_idx, "\r\nWeights\r\n");
+  // float_array_to_char(
+  //
+  // // DMESG("\r\nWeights:");
+  // // print_float_array_fmt(l->weights, l->weights_len);
+  //
+  // // DMESG("\r\nBiases:");
+  // // print_float_array_fmt(l->biases, l->biases_len);
+  //
+  // if (show_all) {
+  //   DMESG("\r\nInput cache:");
+  //   // print_float_array_fmt(l->input_cache, l->input_len);
+  //
+  //   DMESG("\r\nPre-activation function (z) cache:");
+  //   // print_float_array_fmt(l->z_cache, l->output_len);
+  //
+  //   DMESG("\r\nHypothesis function cache:");
+  //   // print_float_array_fmt(l->hypothesis_cache, l->output_len);
+  // }
+  // DMESGF("");
+}
+
+//%
+void print_nn_over_serial() {
+  DMESG("\nNeural Network Info:\n");
+  for (int i = 0; i < nn->num_layers; i++) {
+    DMESG("Layer %d/%d:\n", i + 1, nn->num_layers);
+    print_layer_over_serial(nn->layers[i], false); // don't print everything
+  }
+}
 } // namespace __micro_ml

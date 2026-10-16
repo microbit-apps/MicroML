@@ -50,7 +50,9 @@ namespace micro_ml {
             x: 20,
             y: 25,
             onClick: () => {
-                this.app.pushScene(new EvaluationScene(this.app))
+                if (nn_is_init()) { // TODO: Should tell the user to train it, for now just do nothing
+                  this.app.pushScene(new EvaluationScene(this.app))
+                }
             },
         }),
 
@@ -62,7 +64,7 @@ namespace micro_ml {
           x: 60,
           y: 25,
           onClick: () => {
-            this.app.pushScene(new SimpleCursorScene(this.app))
+            // this.app.pushScene(new SimpleCursorScene(this.app))
           },
         })
       ]])

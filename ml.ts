@@ -7,13 +7,12 @@ namespace micro_ml {
 
   //% shim=__micro_ml::construct_nn
   export function construct_nn(layer_dims: Buffer, activation_function_enums: Buffer, dataset_enum: DatasetEnum): void {
-    console.log("pxtsim hack")
+    console.log("pxtsim hack to prevent void shim being optimised away")
   }
-
 
   //% shim=__micro_ml::train_nn
   export function train_nn(epochs: number, learning_rate: number, lossCB: (l: number) => void): void {
-    console.log("pxtsim hack")
+    console.log("pxtsim hack to prevent void shim being optimised away")
   }
 
   //% shim=__micro_ml::test_nn
@@ -31,6 +30,18 @@ namespace micro_ml {
     return 0;
   }
 
+  //% shim=__micro_ml::nn_input_len
+  export function nn_input_len(): number {
+    return 0;
+  }
+
+  export function packFloat32s(nums: number[]): Buffer {
+    const buf = Buffer.create(nums.length * 4)
+    for (let i = 0; i < nums.length; i++)
+      buf.setNumber(NumberFormat.Float32LE, i * 4, nums[i])
+    return buf
+  }
+
   //% shim=__micro_ml::get_weights
   export function get_weights(): Buffer {
     return null;
@@ -41,6 +52,10 @@ namespace micro_ml {
     return null;
   }
 
+  //% shim=__micro_ml::print_nn_over_serial
+  export function print_nn_over_serial(): void {
+    console.log("pxtsim hack to prevent void shim being optimised away")
+  }
 
   export function print_debug_info(): void {
     control.heapSnapshot()
