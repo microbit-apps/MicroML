@@ -1,19 +1,11 @@
 namespace micro_ml {
-  import Screen = user_interface_base.Screen
-  import Scene = user_interface_base.Scene
-  import AppInterface = user_interface_base.AppInterface
-  import font = user_interface_base.font
-  import Button = user_interface_base.Button
-  import CursorScene = user_interface_base.CursorScene
-
-
   enum TestingSceneState {
     Start,
     Testing,
     Done
   }
 
-  export class TestingScene extends Scene {
+  export class TestingScene extends ui.UiScreen {
     private currentIdx: number;
     private testResults: string[][];
     private state: TestingSceneState;
@@ -22,12 +14,8 @@ namespace micro_ml {
     private prediction: number;
     private confusionMatrix: number[];
 
-    constructor(app: AppInterface) {
-      super(app);
-    }
-
-    startup() {
-      super.startup()
+    constructor(runtime: ui.UiRuntime) {
+      super(runtime);
     }
 
     activate() {
@@ -35,40 +23,6 @@ namespace micro_ml {
       this.currentIdx = 0;
       this.state = TestingSceneState.Start;
       this.testResults = [];
-
-      control.onEvent(
-        ControllerButtonEvent.Pressed,
-        controller.A.id,
-        () => {
-          this.app.popScene()
-        }
-      )
-
-      control.onEvent(
-        ControllerButtonEvent.Pressed,
-        controller.B.id,
-        () => {
-          if (this.state !== TestingSceneState.Testing) {
-            this.app.popScene();
-          }
-        }
-      )
-
-      control.onEvent(
-        ControllerButtonEvent.Pressed,
-        controller.up.id,
-        () => {
-          this.currentIdx = Math.max(0, this.currentIdx - 1);
-        }
-      )
-
-      control.onEvent(
-        ControllerButtonEvent.Pressed,
-        controller.down.id,
-        () => {
-          this.currentIdx = Math.min(this.currentIdx + 1, this.testResults.length - this.maxTestResultsOnScreen)
-        }
-      )
 
       const nnTestCB = (resultsBuf: Buffer) => {
         const results = resultsBuf.toArray(NumberFormat.Float32LE)
@@ -84,7 +38,34 @@ namespace micro_ml {
       this.state = TestingSceneState.Done;
     }
 
-    drawTestResults() {
+    public handleInput(event: ui.UiInputEvent): boolean | undefined {
+      if (event.phase == "released") return undefined
+
+      switch (event.action) {
+        case "activate": {
+          this.runtime.pop()
+          return true
+        }
+        case "cancel": {
+          if (this.state !== TestingSceneState.Testing) {
+            this.runtime.pop();
+          }
+          return true
+        }
+        case "up": {
+          this.currentIdx = Math.max(0, this.currentIdx - 1);
+          return true
+        }
+        case "down": {
+          this.currentIdx = Math.min(this.currentIdx + 1, this.testResults.length - this.maxTestResultsOnScreen)
+          return true
+        }
+      }
+
+      return undefined
+    }
+
+    drawTestResults(surface: ui.DrawSurface) {
       const cols = ["ID", "Label", "Pred", "Conf."];
 
       const rows: string[][] = [
@@ -94,39 +75,36 @@ namespace micro_ml {
       );
 
       const xMargin: number = 9;
-      const xSpacing = (Screen.WIDTH - xMargin) / cols.length
+      const xSpacing = (SCREEN_WIDTH - xMargin) / cols.length
       const ySpacing = 10;
       rows.forEach((row: string[], rowIdx: number) => {
         row.forEach((cols: string, colIdx: number) => {
-          Screen.print(
+          surface.drawText(
             cols,
-            Screen.LEFT_EDGE + xMargin + (colIdx * xSpacing),
-            Screen.TOP_EDGE + (rowIdx * ySpacing),
-            15 // Black in the default palette
+            xMargin + (colIdx * xSpacing),
+            rowIdx * ySpacing,
+            { color: 15 } // Black in the default palette
           );
         })
       })
 
       const accuracyStr = `Acc: ${this.accuracyAsStr}%`
-      Screen.print(
+      surface.drawText(
         accuracyStr,
-        0 - (font.charWidth * accuracyStr.length >> 1),
-        Screen.BOTTOM_EDGE - 10,
-        15 // Black in the default palette
+        HALF_WIDTH - (bitmaps.font8.charWidth * accuracyStr.length >> 1),
+        SCREEN_HEIGHT - 10,
+        { color: 15 } // Black in the default palette
       );
     }
 
-    draw() {
-      Screen.fillRect(
-        Screen.LEFT_EDGE,
-        Screen.TOP_EDGE,
-        Screen.WIDTH,
-        Screen.HEIGHT,
+    render(surface: ui.DrawSurface) {
+      surface.fillRect(
+        new ui.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
         6
       )
 
       if (this.state == TestingSceneState.Done) {
-        this.drawTestResults();
+        this.drawTestResults(surface);
       }
     }
   }

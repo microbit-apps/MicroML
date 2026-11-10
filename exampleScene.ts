@@ -1,15 +1,5 @@
 namespace micro_ml {
-  import Screen = user_interface_base.Screen
-  import Scene = user_interface_base.Scene
-  import AppInterface = user_interface_base.AppInterface
-  import font = user_interface_base.font
-
-
-  /**
-  * Use a Scene instead of a CursorScene when you want to
-  * control display-shield button behaviour yourself.
-  */
-  export class ExampleScene extends Scene {
+  export class ExampleScene extends ui.UiScreen {
     // layerDims = Buffer.fromArray([30, 16, 2]);
     // afe = Buffer.fromArray([ActivationFunctionEnum.Sigmoid, ActivationFunctionEnum.SoftMax]);
     // epochs = 50
@@ -19,12 +9,12 @@ namespace micro_ml {
     // accuracy: number = null
     // trainTime: number = null
 
-    constructor(app: AppInterface) {
-      super(app)
+    constructor(runtime: ui.UiRuntime) {
+      super(runtime)
     }
 
-    // This is called when the Scene 'becomes active'.
-    // This happens when the scene ahead is popped, or this is the first one pushed.
+    // This is called when the Screen 'becomes active'.
+    // This happens when the screen ahead is popped, or this is the first one pushed.
     activate() {
       super.activate()
 
@@ -41,7 +31,7 @@ namespace micro_ml {
       //   ControllerButtonEvent.Pressed,
       //   controller.A.id,
       //   () => {
-      //     // this.app.pushScene(new ExampleMicroGUIScene(this.app))
+      //     // this.runtime.push(new ExampleMicroGUIScene(this.runtime))
       //
       //     const startTime = control.millis();
       //     this.training = true;
@@ -54,17 +44,14 @@ namespace micro_ml {
       //   ControllerButtonEvent.Pressed,
       //   controller.B.id,
       //   () => {
-      //     this.app.popScene()
+      //     this.runtime.pop()
       //   }
       // )
     }
 
-    draw() {
-      Screen.fillRect(
-        Screen.LEFT_EDGE,
-        Screen.TOP_EDGE,
-        Screen.WIDTH,
-        Screen.HEIGHT,
+    render(surface: ui.DrawSurface) {
+      surface.fillRect(
+        new ui.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
         6 // Light blue in the default palette
       )
 
@@ -96,29 +83,29 @@ namespace micro_ml {
       // ];
       //
       // modelInfo.forEach((line, index) => {
-      //     Screen.print(
+      //     surface.drawText(
       //       line,
-      //       -line.length * font.charWidth >> 1,
-      //       -55 + index * (font.charHeight + 1),
-      //       15 // Black in the default palette
+      //       HALF_WIDTH - line.length * bitmaps.font8.charWidth >> 1,
+      //       -55 + HALF_HEIGHT + index * (bitmaps.font8.charHeight + 1),
+      //       { color: 15 } // Black in the default palette
       //     )
       // })
       //
       // if (!this.training) {
       //   const txt1 = "Press A to start training"
-      //   Screen.print(
+      //   surface.drawText(
       //     txt1,
-      //     -txt1.length * font.charWidth >> 1,
-      //     30,
-      //     15 // Black in the default palette
+      //     HALF_WIDTH - txt1.length * bitmaps.font8.charWidth >> 1,
+      //     30 + HALF_HEIGHT,
+      //     { color: 15 } // Black in the default palette
       //   )
       // } else if (this.accuracy === null || this.trainTime === null) {
       //   const txt1 = "model is training..."
-      //   Screen.print(
+      //   surface.drawText(
       //     txt1,
-      //     -txt1.length * font.charWidth >> 1,
-      //     30,
-      //     15 // Black in the default palette
+      //     HALF_WIDTH - txt1.length * bitmaps.font8.charWidth >> 1,
+      //     30 + HALF_HEIGHT,
+      //     { color: 15 } // Black in the default palette
       //   )
       // } else {
       //   const trainTimeSec = (this.trainTime / 1000).toString().slice(0, 4)
@@ -128,16 +115,16 @@ namespace micro_ml {
       //     ]
       //
       //     info.forEach((line, index) => {
-      //         Screen.print(
+      //         surface.drawText(
       //           line,
-      //           -line.length * font.charWidth >> 1,
-      //           30 + (index * (font.charHeight + 1)),
-      //           15 // Black in the default palette
+      //           HALF_WIDTH - line.length * bitmaps.font8.charWidth >> 1,
+      //           30 + HALF_HEIGHT + (index * (bitmaps.font8.charHeight + 1)),
+      //           { color: 15 } // Black in the default palette
       //         )
       //     })
       //
       // }
-      super.draw()
+      super.render(surface)
     }
   }
 }

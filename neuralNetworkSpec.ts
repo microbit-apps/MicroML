@@ -1,10 +1,5 @@
 namespace micro_ml {
-  // This import is really just a convenience to avoid having to prepend user_interface_base
   // Extensions and files are included when you list them inside pxt.json
-  import AppInterface = user_interface_base.AppInterface
-  import Scene = user_interface_base.Scene
-  import SceneManager = user_interface_base.SceneManager
-  import Sensor = sensors.Sensor
   import MicrobitSensors = sensors.MicrobitSensors
 
   enum DataOrigin {

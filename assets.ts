@@ -1,6 +1,6 @@
 /**
 * assets.ts contains custom assets, and surfaces icons.get(name: string)
-* This function allows you to get your assets, and the ones in user_interface_base
+* This function allows you to get your assets, and the ones built into ui-core.
 * It's done this way to make locallisation easier later on.
 */
 namespace micro_ml {
@@ -19,7 +19,13 @@ namespace micro_ml {
         else if (name === "btn_stop") return btn_stop;
         else if (name === "sampleHeadsOrTails") return sampleHeadsOrTails;
         
-      return user_interface_base.icons.get(name, nullIfMissing);
+      if (name === "microbitLogo") return ui.microbitLogo
+      else if (name === "green_tick") return ui.green_tick
+      else if (name === "largeDisk") return ui.largeDisk
+      else if (name === "largeSettingsGear") return ui.largeSettingsGear
+      else if (name === "accelerometer") return ui.accelerometer
+
+      return ui.MISSING
     }
   }
 
@@ -578,4 +584,38 @@ namespace micro_ml {
         33333333333344444444455555555543
         .333333333333333333333333333333.
     `
+
+  export class AppAssets implements ui.UiAssetResolver {
+    private icons: ui.UiMapAssets
+
+    constructor() {
+      this.icons = new ui.UiMapAssets({
+        microMLLogo: () => microMLLogo,
+        tick: () => tick,
+        linearGraph1: () => linearGraph1,
+        linearGraph3: () => linearGraph3,
+        neuralNetwork1: () => neuralNetwork1,
+        btn_plus: () => btn_plus,
+        btn_delete: () => btn_delete,
+        disk: () => disk,
+        settingsGear: () => settingsGear,
+        rule_arrow: () => rule_arrow,
+        btn_stop: () => btn_stop,
+        sampleHeadsOrTails: () => sampleHeadsOrTails,
+        microbitLogo: () => ui.microbitLogo,
+        green_tick: () => ui.green_tick,
+        largeDisk: () => ui.largeDisk,
+        largeSettingsGear: () => ui.largeSettingsGear,
+        accelerometer: () => ui.accelerometer
+      }, ui.MISSING)
+    }
+
+    public getBitmap(id: string | number, nullIfMissing?: boolean): Bitmap | undefined {
+      return this.icons.getBitmap(id, nullIfMissing)
+    }
+
+    public getText(id: string): string {
+      return ""
+    }
+  }
 }

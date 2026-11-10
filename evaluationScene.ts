@@ -1,27 +1,18 @@
 namespace micro_ml {
-  import Screen = user_interface_base.Screen
-  import Scene = user_interface_base.Scene
-  import AppInterface = user_interface_base.AppInterface
-  import font = user_interface_base.font
-  import Button = user_interface_base.Button
-  import CursorScene = user_interface_base.CursorScene
   import Sensor = sensors.Sensor
 
   const intraSampleFrequencyMS: number = 100;
+  const retriggerDelayMS = 1;
 
-  export class EvaluationScene extends Scene {
+  export class EvaluationScene extends ui.UiScreen {
     private sensors: Sensor[];
 
     private samplingIntervalID: number;
     private lastSample: number[];
     private lastNNPredLabel: string;
 
-    constructor(app: AppInterface) {
-      super(app);
-    }
-
-    startup() {
-      super.startup()
+    constructor(runtime: ui.UiRuntime) {
+      super(runtime);
     }
 
     activate() {
@@ -33,7 +24,6 @@ namespace micro_ml {
       const inputLen = nn_input_len();
       if (inputLen > 0 && this.sensors.length > 0) {
         const samplesPerAxis = Math.idiv(inputLen, this.sensors.length);
-        const retriggerDelayMS = 1;
         this.samplingIntervalID = control.setInterval(
           () => {
             this.lastSample = sensors.getSamples(this.sensors, samplesPerAxis, intraSampleFrequencyMS);
@@ -51,32 +41,33 @@ namespace micro_ml {
       control.clearInterval(this.samplingIntervalID, control.IntervalMode.Interval)
     }
 
-    draw() {
-      Screen.drawTransparentImage(
+    render(surface: ui.DrawSurface) {
+      surface.drawBitmap(
         trainingSceneBackground,
-        -Screen.HALF_WIDTH,
-        -Screen.HALF_HEIGHT
+        0,
+        0
       );
 
 
       if (this.lastNNPredLabel !== undefined) {
         const s: string = this.lastSample[0] + ", " + this.lastSample[1] + ", " + this.lastSample[2]
 
-        Screen.print(
+        surface.drawText(
           s,
-          0 - (s.length * font.charWidth >> 1),
-          -20
+          HALF_WIDTH - (s.length * bitmaps.font8.charWidth >> 1),
+          -20 + HALF_HEIGHT,
+          { color: 1, font: bitmaps.font8 }
         )
 
-        Screen.print(
+        surface.drawText(
           this.lastNNPredLabel,
-          0 - (this.lastNNPredLabel.length * font.charWidth >> 1),
-          20
+          HALF_WIDTH - (this.lastNNPredLabel.length * bitmaps.font8.charWidth >> 1),
+          20 + HALF_HEIGHT,
+          { color: 1, font: bitmaps.font8 }
         )
       }
 
-      super.draw()
+      super.render(surface)
     }
   }
 }
-

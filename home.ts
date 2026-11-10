@@ -1,93 +1,60 @@
 namespace micro_ml {
-  import Screen = user_interface_base.Screen
-  import CursorScene = user_interface_base.CursorScene
-  import Button = user_interface_base.Button
-  import ButtonStyles = user_interface_base.ButtonStyles
-  import AppInterface = user_interface_base.AppInterface
-  import font = user_interface_base.font
-
-  export class Home extends CursorScene {
+  export class Home extends ui.UiScreen {
     /** Used by draw for examplelogo visual effect **/
-    private yOffset = -Screen.HEIGHT >> 1
+    private yOffset = -SCREEN_HEIGHT >> 1
+    private actions: ui.UiRow<string>
 
-    constructor(app: AppInterface) {
-      super(app)
+    constructor(runtime: ui.UiRuntime) {
+      super(runtime)
+
+      const action = (id: string, bitmap: Bitmap, focusLabel: string, onActivate: () => void): ui.UiRowControl<string> => {
+        const control = ui.button<string>(id, { bitmap }, onActivate)
+        control.focusLabel = focusLabel
+        control.style = ui.UiButtonStyles.Transparent
+        return control
+      }
+
+      this.actions = new ui.UiRow<string>({
+        scopeId: "home-actions",
+        controls: [
+          action("train", icons.get("neuralNetwork1"), "Train", () => {
+            runtime.push(new TrainingScene(runtime))
+          }),
+          action("test", icons.get("linearGraph3"), "Test", () => {
+            if (nn_is_init()) { // TODO: Should tell the user to train it, for now just do nothing
+              runtime.push(new TestingScene(runtime))
+            }
+          }),
+          action("evaluate", icons.get("sampleHeadsOrTails"), "Evaluate", () => {
+            if (nn_is_init()) { // TODO: Should tell the user to train it, for now just do nothing
+              runtime.push(new EvaluationScene(runtime))
+            }
+          }),
+          action("build-dataset", ui.largeDisk, "Build a dataset", () => {
+          })
+        ],
+        controlSize: { width: 34, height: 34 },
+        gap: 6,
+        wrap: true
+      })
+
+      this.add(this.actions, { centerX: HALF_WIDTH, centerY: 85 })
     }
 
-    /* override */
-    startup() {
-      super.startup()
-      this.navigator.setBtns([[
-        new Button({
-            parent: null,
-            style: ButtonStyles.Transparent,
-            icon: "neuralNetwork1",
-            ariaId: "Train",
-            x: -60,
-            y: 25,
-            onClick: () => {
-                this.app.pushScene(new TrainingScene(this.app))
-            },
-        }),
-        new Button({
-            parent: null,
-            style: ButtonStyles.Transparent,
-            icon: "linearGraph3",
-            ariaId: "Test",
-            x: -20,
-            y: 25,
-            onClick: () => {
-                if (nn_is_init()) { // TODO: Should tell the user to train it, for now just do nothing
-                  this.app.pushScene(new TestingScene(this.app))
-                }
-            },
-        }),
-        new Button({
-            parent: null,
-            style: ButtonStyles.Transparent,
-            icon: "sampleHeadsOrTails",
-            ariaId: "Evaluate",
-            x: 20,
-            y: 25,
-            onClick: () => {
-                if (nn_is_init()) { // TODO: Should tell the user to train it, for now just do nothing
-                  this.app.pushScene(new EvaluationScene(this.app))
-                }
-            },
-        }),
-
-        new Button({
-          parent: null,
-          style: ButtonStyles.Transparent,
-          icon: "largeDisk",
-          ariaId: "Build a dataset",
-          x: 60,
-          y: 25,
-          onClick: () => {
-            // this.app.pushScene(new SimpleCursorScene(this.app))
-          },
-        })
-      ]])
-    }
-
-    private drawVersion() {
+    private drawVersion(surface: ui.DrawSurface) {
       const font = bitmaps.font5
       const text = "v0.0.1"
-      Screen.print(
+      surface.drawText(
         text,
-        Screen.RIGHT_EDGE - (font.charWidth * text.length),
-        Screen.BOTTOM_EDGE - font.charHeight - 2,
-        11, // light grey in the default palette
-        font
+        SCREEN_WIDTH - (font.charWidth * text.length),
+        SCREEN_HEIGHT - font.charHeight - 2,
+        { color: 11, font: font } // light grey in the default palette
       )
     }
 
-    draw() {
-      Screen.fillRect(
-        Screen.LEFT_EDGE,
-        Screen.TOP_EDGE,
-        Screen.WIDTH,
-        Screen.HEIGHT,
+    render(surface: ui.DrawSurface) {
+      surface.fillRect(
+        new ui.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT),
         0xc
       )
 
@@ -99,46 +66,38 @@ namespace micro_ml {
       const t = control.millis()
       const dy = this.yOffset == 0 ? (Math.idiv(t, 800) & 1) - 1 : 0
       const margin = 2
-      const OFFSET = (Screen.HEIGHT >> 1) - wordLogo.height - margin - 9
-      const y = Screen.TOP_EDGE + OFFSET + dy
+      const OFFSET = (SCREEN_HEIGHT >> 1) - wordLogo.height - margin - 9
 
-
-      Screen.drawTransparentImage(
+      surface.drawBitmap(
         wordLogo,
-        Screen.LEFT_EDGE + ((Screen.WIDTH - wordLogo.width) >> 1) + dy,
-        y + this.yOffset
+        ((SCREEN_WIDTH - wordLogo.width) >> 1) + dy,
+        OFFSET + dy + this.yOffset
       )
 
-      Screen.drawTransparentImage(
+      surface.drawBitmap(
         microbitLogo,
-        Screen.LEFT_EDGE +
-        ((Screen.WIDTH - microbitLogo.width) >> 1) +
-        dy,
-        y - wordLogo.height + this.yOffset + margin
+        ((SCREEN_WIDTH - microbitLogo.width) >> 1) + dy,
+        OFFSET + dy + this.yOffset - wordLogo.height + margin
       )
 
       if (!this.yOffset) {
         const tagline = "on device ML"
-        Screen.print(
+        surface.drawText(
           tagline,
-          Screen.LEFT_EDGE +
-          ((Screen.WIDTH + wordLogo.width) >> 1) +
+          ((SCREEN_WIDTH + wordLogo.width) >> 1) +
           dy -
-          font.charWidth * tagline.length,
-          Screen.TOP_EDGE +
+          bitmaps.font8.charWidth * tagline.length,
           OFFSET +
           wordLogo.height +
           dy +
           this.yOffset +
           1,
-          11,
-          font
+          { color: 11 } // light grey in the default palette
         )
       }
 
-      this.navigator.drawComponents()
-      this.drawVersion()
-      super.draw()
+      this.drawVersion(surface)
+      super.render(surface)
     }
   }
 }
